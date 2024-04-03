@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="example" />
+    <meta name="description" content="سامانه مشتریان شرکت نمایشگاه بین‌المللی ارومیه">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{% block title %}{% endblock title %}</title>
+
+    <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/rtl.css' %}" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="body-inner">
+        <header id="header" data-fullwidth="true" class="header-always-fixed">
+            <div class="header-inner">
+                <div class="container">
+                    <div id="logo">
+                        <a href="index.html">
+                            <span class="logo-default">UIF</span>
+                            <span class="logo-dark">UIF</span>
+                        </a>
+                    </div>
+                        
+                        
+                    <div id="search"><a id="btn-search-close" class="btn-search-close" aria-label="Close search form"><i class="icon-x"></i></a>
+                        <form class="search-form" action="search-results-page.html" method="get">
+                            <input class="form-control" name="q" type="text" placeholder="جستجو کنید ..." />
+                            <span class="text-muted">جستجو را شروع کنید و کلید "Enter" را بزنید یا برای خروج دکمه "ESC" را بزنید</span>
+                        </form>
+                    </div>
+                        
+                        
+                    <div class="header-extras">
+                        <ul>
+                            <li>
+                                <a id="btn-search" href="#"> <i class="icon-search"></i></a>
+                            </li>
+                            <li>
+                                <div class="p-dropdown">
+                                    <a href="#"><i class="icon-globe"></i><span>فا</span></a>
+                                    <ul class="p-dropdown-content">
+                                        <li><a href="#">فارسی</a></li>
+                                        <li><a href="#">انگلیسی</a></li>
+                                        <li><a href="#">فرانسوی</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                        
+                        
+                    <div id="mainMenu-trigger">
+                        <a class="lines-button x"><span class="lines"></span></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <a id="scrollTop"><i class="icon-chevron-up"></i><i class="icon-chevron-up"></i></a>
+
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+
+    <script src="{% static 'js/functions.js' %}"></script>
+</body>
+
+</html>
