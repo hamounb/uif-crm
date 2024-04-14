@@ -46,14 +46,14 @@ class CustomerModel(BaseModel):
     lastname = models.CharField(verbose_name='نام خانوادگی', max_length=50)
     fathername = models.CharField(verbose_name='نام پدر', max_length=50)
     code = models.CharField(verbose_name='کدملی', max_length=10)
-    ceoname = models.CharField(verbose_name='نام مدیرعامل', max_length=100)
+    ceoname = models.CharField(verbose_name='نام مدیرعامل', max_length=100, null=True, blank=True)
     company = models.CharField(verbose_name='نام تجاری', max_length=100)
-    ncode = models.CharField(verbose_name='شناسه ملی', max_length=11)
+    ncode = models.CharField(verbose_name='شناسه ملی', max_length=11, null=True, blank=True)
     mobile = models.CharField(verbose_name='موبایل', max_length=11)
     phone = models.CharField(verbose_name='تلفن', max_length=11, null=True, blank=True)
     fax = models.CharField(verbose_name='فکس', max_length=11, null=True, blank=True)
     email = models.EmailField(verbose_name='ایمیل', null=True, blank=True)
-    postcode = models.CharField(verbose_name='کد پستی', max_length=10)
+    postalcode = models.CharField(verbose_name='کد پستی', max_length=10)
     address = models.TextField(verbose_name='آدرس')
 
     def __str__(self):
