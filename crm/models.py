@@ -38,12 +38,14 @@ class CustomerModel(BaseModel):
         (STATE_REAL, 'حقیقی'),
         (STATE_LEGAL, 'حقوقی')
     )
+    is_active = models.BooleanField(verbose_name='فعال', default=False)
+    sid = models.CharField(verbose_name='کد معین', max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     state = models.CharField(verbose_name='نوع مشارکت کننده', max_length=50, choices=STATE_CHOICES, default=STATE_REAL)
     firstname = models.CharField(verbose_name='نام', max_length=50)
     lastname = models.CharField(verbose_name='نام خانوادگی', max_length=50)
     fathername = models.CharField(verbose_name='نام پدر', max_length=50)
-    ncode = models.CharField(verbose_name='کدملی', max_length=10)
+    code = models.CharField(verbose_name='کدملی', max_length=10)
     ceoname = models.CharField(verbose_name='نام مدیرعامل', max_length=100)
     company = models.CharField(verbose_name='نام تجاری', max_length=100)
     ncode = models.CharField(verbose_name='شناسه ملی', max_length=11)
@@ -62,6 +64,7 @@ class CustomerModel(BaseModel):
         verbose_name_plural = 'مشارکت کنندگان'
 
 class DocumentsModel(BaseModel):
+    is_active = models.BooleanField(verbose_name='فعال', default=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
     file = models.FileField(verbose_name='مدرک', upload_to=documents_directory_path)
@@ -74,6 +77,8 @@ class DocumentsModel(BaseModel):
         verbose_name_plural = 'مدارک'
 
 class ExhibitionModel(BaseModel):
+    is_active = models.BooleanField(verbose_name='فعال', default=True)
+    sid = models.CharField(verbose_name='کد معین', max_length=50, null=True, blank=True)
     title = models.CharField(verbose_name='عنوان نمایشگاه', max_length=200)
     price = models.CharField(verbose_name='قیمت', max_length=20)
     value_added = models.CharField(verbose_name='ارزش افزوده', max_length=10)
@@ -86,11 +91,36 @@ class ExhibitionModel(BaseModel):
         verbose_name = 'نمایشگاه'
         verbose_name_plural = 'نمایشگاه‌ها'
 
+class RequestModel(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
+    customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
+    exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='نمایشگاه')
+    area = models.IntegerField(verbose_name='متراژ', default=0)
+    rules = models.BooleanField(verbose_name='قوانین')
+    is_active = models.BooleanField(verbose_name='فعال', default=False)
+
+    def __str__(self):
+        return f"{self.customer.company} - {self.exhibition.title}"
+    
+    class Meta:
+        verbose_name = 'درخواست'
+        verbose_name_plural = 'درخواست‌ها'
+
 class InvoiceModel(BaseModel):
+    is_active = models.BooleanField(verbose_name='فعال', default=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='نمایشگاه')
     price = models.CharField(verbose_name='مبلغ', max_length=20)
     area = models.IntegerField(verbose_name='متراژ', default=0)
-    discount = models.IntegerField(verbose_name='تخفیف', default=0)
+    value_added = models.IntegerField(verbose_name='متراژ', default=0)
+    discount = models.CharField(verbose_name='تخفیف', max_length=20, null=True, blank=True)
+    total_price = models.CharField(verbose_name='مبلغ', max_length=20)
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.customer.company} - {self.exhibition.title} - {self.price}"
+    
+    class Meta:
+        verbose_name = 'فاکتور'
+        verbose_name_plural = 'فاکتورها'
