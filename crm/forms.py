@@ -59,11 +59,21 @@ class CustomerAddForm(forms.ModelForm):
         }
 
 class DocumentForm(forms.ModelForm):
-    # customer = forms.ChoiceField()
 
     class Meta:
         model = DocumentsModel
         fields = (
             'file',
             'customer',
+        )
+
+class RequestsForm(forms.ModelForm):
+
+    class Meta:
+        model = RequestModel
+        fields = (
+            'customer',
+            'exhibition',
+            'area',
+            'rules',
         )

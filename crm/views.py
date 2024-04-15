@@ -59,7 +59,7 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                 obj.user_created = user
                 obj.save()
                 messages.success(request, f"مشتری حقیقی {obj.company} اطلاعات شما ثبت شد.")
-                return render(request, 'crm/message.html', {'form':form})
+                return render(request, 'crm/message.html')
         return render(request, 'crm/customer-add.html', {'form':form})
 
 class CustomerChangeView(LoginRequiredMixin, views.View):
@@ -94,7 +94,7 @@ class CustomerChangeView(LoginRequiredMixin, views.View):
                 obj.user_modified = user
                 obj.save()
                 messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                return render(request, 'crm/message.html', {'form':form})
+                return render(request, 'crm/message.html')
         return render(request, 'crm/customer-change.html', {'form':form})
     
 class DocumentsView(LoginRequiredMixin, views.View):
@@ -103,12 +103,49 @@ class DocumentsView(LoginRequiredMixin, views.View):
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(user=user)
-        li = ['ali', 'hasan']
         docs = DocumentsModel.objects.filter(user=user).order_by('-created_date')
         form = DocumentForm()
         context = {
+            'customer':customer,
             'form':form,
             'docs':docs,
         }
         return render(request, 'crm/documents.html', context)
         
+class RequestsView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        if customer:
+            form = RequestsForm()
+            context = {
+                'customer':customer,
+                'form':form,
+            }
+            return render(request, 'crm/requests.html', context)
+        messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
+        return render(request, 'crm/message.html')
+    
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        if customer:
+            form = RequestsForm(request.POST)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.user = user
+                obj.created_user = user
+                obj.modified_user = user
+                obj.save()
+                messages.success(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                 f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} با متراژ {form.cleaned_data['area']} ثبت شد.")
+                return redirect('crm:customer-change', id=customer.pk)
+            context = {
+                'customer':customer,
+                'form':form,
+            }
+            return render(request, 'crm/requests.html', context)
+        messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
+        return render(request, 'crm/message.html')
