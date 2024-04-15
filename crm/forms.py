@@ -53,9 +53,10 @@ class CustomerAddForm(forms.ModelForm):
             'firstname': forms.TextInput(attrs={'class':'form-control'}),
             'lastname': forms.TextInput(attrs={'class':'form-control'}),
             'fathername': forms.TextInput(attrs={'class':'form-control'}),
+            'ceoname': forms.TextInput(attrs={'class':'form-control'}),
             'company': forms.TextInput(attrs={'class':'form-control'}),
             'email': forms.EmailInput(attrs={'class':'form-control'}),
-            'address': forms.Textarea(attrs={'class':'form-control', 'rows':2}),
+            'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }
 
 class DocumentForm(forms.ModelForm):

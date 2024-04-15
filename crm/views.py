@@ -13,7 +13,13 @@ class IndexView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
     def get(self, request):
-        return render(request, 'crm/index.html')
+        user = get_object_or_404(User, pk=request.user.id)
+        print(user.username)
+        customer = CustomerModel.objects.filter(user=user)
+        if customer:
+            return render(request, 'crm/index.html')
+        else:
+            return render(request, 'crm/help.html')
     
 # class CustomerView(LoginRequiredMixin, views.View):
 #     login_url = 'accounts:signin'

@@ -47,7 +47,7 @@ class CustomerModel(BaseModel):
     fathername = models.CharField(verbose_name='نام پدر', max_length=50)
     code = models.CharField(verbose_name='کدملی', max_length=10)
     ceoname = models.CharField(verbose_name='نام مدیرعامل', max_length=100, null=True, blank=True)
-    company = models.CharField(verbose_name='نام تجاری', max_length=100)
+    company = models.CharField(verbose_name='نام تجاری/شرکت', max_length=100)
     ncode = models.CharField(verbose_name='شناسه ملی', max_length=11, null=True, blank=True)
     mobile = models.CharField(verbose_name='موبایل', max_length=11)
     phone = models.CharField(verbose_name='تلفن', max_length=11, null=True, blank=True)
