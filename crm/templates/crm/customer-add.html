@@ -9,42 +9,73 @@
 <section id="page-content">
     <div class="container">
         <div class="row">
-            <div class="content col-lg-12">
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <form>
+                        <h2>فرم ثبت اطلاعات</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group col-lg-12">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {{ message}}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     {{ form.state.label_tag }}
                                     {{ form.state }}
                                     {{ form.state.errors }}
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label>توجه!</label>
-                                    <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
-                                </div>
                             </div>
                             <div class="line my-4"></div>
                             <div class="form-row">
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     {{ form.firstname.label_tag }}
                                     {{ form.firstname }}
-                                    {{ form.firstname.errors }}
+                                    {% if form.firstname.errors %}
+                                        {% for error in form.firstname.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     {{ form.lastname.label_tag }}
                                     {{ form.lastname }}
-                                    {{ form.lastname.errors }}
+                                    {% if form.lastname.errors %}
+                                        {% for error in form.lastname.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     {{ form.fathername.label_tag }}
                                     {{ form.fathername }}
-                                    {{ form.fathername.errors }}
+                                    {% if form.fathername.errors %}
+                                        {% for error in form.fathername.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     {{ form.code.label_tag }}
                                     {{ form.code }}
-                                    {{ form.code.errors }}
+                                    {% if form.code.errors %}
+                                        {% for error in form.code.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="line my-4"></div>
@@ -52,34 +83,58 @@
                                 <div class="form-group col-md-4">
                                     {{ form.company.label_tag }}
                                     {{ form.company }}
-                                    {{ form.company.errors }}
+                                    {% if form.company.errors %}
+                                        {% for error in form.company.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-4">
                                     {{ form.ceoname.label_tag }}
                                     {{ form.ceoname }}
-                                    {{ form.ceoname.errors }}
+                                    {% if form.ceoname.errors %}
+                                        {% for error in form.ceoname.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-4">
                                     {{ form.ncode.label_tag }}
                                     {{ form.ncode }}
-                                    {{ form.ncode.errors }}
+                                    {% if form.ncode.errors %}
+                                        {% for error in form.ncode.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     {{ form.mobile.label_tag }}
                                     {{ form.mobile }}
-                                    {{ form.mobile.errors }}
+                                    {% if form.mobile.errors %}
+                                        {% for error in form.mobile.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-4">
                                     {{ form.phone.label_tag }}
                                     {{ form.phone }}
-                                    {{ form.phone.errors }}
+                                    {% if form.phone.errors %}
+                                        {% for error in form.phone.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-4">
                                     {{ form.fax.label_tag }}
                                     {{ form.fax }}
-                                    {{ form.fax.errors }}
+                                    {% if form.fax.errors %}
+                                        {% for error in form.fax.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="line my-4"></div>
@@ -87,20 +142,32 @@
                                 <div class="form-group col-md-4">
                                     {{ form.email.label_tag }}
                                     {{ form.email }}
-                                    {{ form.email.errors }}
+                                    {% if form.email.errors %}
+                                        {% for error in form.email.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-3">
                                     {{ form.postalcode.label_tag }}
                                     {{ form.postalcode }}
-                                    {{ form.postalcode.errors }}
+                                    {% if form.postalcode.errors %}
+                                        {% for error in form.postalcode.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-md-5">
                                     {{ form.address.label_tag }}
                                     {{ form.address }}
-                                    {{ form.address.errors }}
+                                    {% if form.address.errors %}
+                                        {% for error in form.address.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
-                            <input type="submit" class="btn" value="ذخیره اطلاعات">
+                            <input type="submit" class="btn btn-success" value="ذخیره اطلاعات">
                         </form>
                     </div>
                 </div>
