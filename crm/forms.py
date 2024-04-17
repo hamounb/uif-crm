@@ -1,6 +1,8 @@
 from django import forms
 from .models import *
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
@@ -65,8 +67,10 @@ class DocumentForm(forms.ModelForm):
         model = DocumentsModel
         fields = (
             'file',
-            'customer',
         )
+        widgets = {
+            'file': forms.FileInput(attrs={'value':'dd'})
+        }
 
 class RequestsForm(forms.ModelForm):
 
@@ -78,3 +82,9 @@ class RequestsForm(forms.ModelForm):
             'area',
             'rules',
         )
+        widgets = {
+            'customer': forms.Select(attrs={'class':'form-control', 'required':True}),
+            'exhibition': forms.Select(attrs={'class':'form-control', 'required':True}),
+            'area': forms.NumberInput(attrs={'class':'form-control'}),
+            'rules': forms.CheckboxInput(attrs={'required':True})
+        }

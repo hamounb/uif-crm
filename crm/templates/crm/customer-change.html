@@ -5,15 +5,50 @@
 {% endblock title %}
 
 {% block content %}
+<div style="background-color:blue">
 <section id="page-content">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>فرم ثبت اطلاعات</h2>
+                        <h2>فرم ویرایش اطلاعات</h2>
                         <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
                         <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <form method="post" action="{% url 'crm:documents-add' id=customer.id %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-3">
+                                            {{ form2.file.label_tag }}
+                                                {{ form2.file }}
+                                            {% if form2.label_tag.errors %}
+                                                {% for error in form2.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            <input type="submit" class="btn btn-success btn-sm" value="بارگذاری">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-lg-6">
+                                {% for doc in docs %}
+                                <div class="post-thumbnail-list">
+                                    <div class="post-thumbnail-entry">
+                                        <a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -27,10 +62,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-check-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -189,4 +224,5 @@
         </div>
     </div>
 </section>
+</div>
 {% endblock content %}

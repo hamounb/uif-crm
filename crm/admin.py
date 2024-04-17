@@ -29,6 +29,14 @@ class DocumentsAdmin(admin.ModelAdmin):
             obj.user_modified = request.user
         return super().save_model(request, obj, form, change)
     
+    def delete_model(self, request, obj):
+        # Delete the associated file before deleting the object
+        if obj.file:  # Assuming your file field is named 'your_file_field'
+            obj.file.delete(save=False)  # Delete the file from storage
+        
+        # Call the parent class delete_model method to perform the actual deletion
+        super().delete_model(request, obj)
+    
 @admin.register(ExhibitionModel)
 class ExhibitionAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
