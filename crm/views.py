@@ -68,6 +68,7 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                 return redirect('crm:customer-change', id=obj.id)
         return render(request, 'crm/customer-add.html', {'form':form})
 
+
 class CustomerChangeView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
@@ -117,6 +118,7 @@ class CustomerChangeView(LoginRequiredMixin, views.View):
                 return redirect('crm:customer-change', id=customer.pk)
         return render(request, 'crm/customer-change.html', context)
     
+
 class DocumentsAddView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
@@ -133,6 +135,7 @@ class DocumentsAddView(LoginRequiredMixin, views.View):
             return redirect('crm:customer-change', id=customer.pk)
         return redirect('crm:customer-change', id=customer.pk)
     
+
 class DocumentsView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
@@ -147,13 +150,15 @@ class DocumentsView(LoginRequiredMixin, views.View):
             'docs':docs,
         }
         return render(request, 'crm/documents.html', context)
-        
+
+
 class RequestsAddView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        # req = customer.request_set.all().order_by('-created_date')
         if customer:
             form = RequestsForm()
             context = {
@@ -162,7 +167,7 @@ class RequestsAddView(LoginRequiredMixin, views.View):
             }
             return render(request, 'crm/requests-add.html', context)
         messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
-        return render(request, 'crm/message.html')
+        return render(request, 'crm/requests-add.html', context)
     
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
@@ -174,18 +179,29 @@ class RequestsAddView(LoginRequiredMixin, views.View):
                 'form':form,
             }
             if form.is_valid():
-                obj = form.save(commit=False)
-                obj.user = user
-                obj.created_user = user
-                obj.modified_user = user
-                obj.save()
-                messages.success(request, f"مشارکت کننده {form.cleaned_data['customer']}"
-                                 f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} با متراژ {form.cleaned_data['area']} ثبت شد.")
-                return render(request, 'crm/requests-add.html', context)
+                w = RequestModel.objects.filter(Q(customer=form.cleaned_data['customer']) & Q(exhibition=form.cleaned_data['exhibition']) & Q(state=RequestModel.STATE_WAIT))
+                a = RequestModel.objects.filter(Q(customer=form.cleaned_data['customer']) & Q(exhibition=form.cleaned_data['exhibition']) & Q(state=RequestModel.STATE_ACCEPT))
+                if w:
+                    messages.error(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                 f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} قبلا ثبت شده و در حال بررسی است.", extra_tags='danger')
+                    return render(request, 'crm/requests-add.html', context)
+                elif a:
+                    messages.error(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                 f" با درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} موافقت شده است و امکان ثبت دوباره ندارد.", extra_tags='danger')
+                    return render(request, 'crm/requests-add.html', context)
+                else:
+                    obj = form.save(commit=False)
+                    obj.user = user
+                    obj.created_user = user
+                    obj.modified_user = user
+                    obj.save()
+                    messages.success(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                     f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} با متراژ {form.cleaned_data['area']} ثبت شد.")
+                    return render(request, 'crm/requests-add.html', context)
             context = {
                 'customer':customer,
                 'form':form,
             }
             return render(request, 'crm/requests-add.html', context)
         messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
-        return render(request, 'crm/message.html')
+        return render(request, 'crm/requests-add.html', context)

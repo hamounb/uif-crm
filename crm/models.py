@@ -8,6 +8,7 @@ def documents_directory_path(instance, filename):
     return f"{instance.user.id} - {instance.customer.company}/{filename}"
     # "{0}/{1}".format(instance.user.id, filename)
 
+
 class BaseModel(models.Model):
     user_modified = models.ForeignKey(
         User,
@@ -30,6 +31,7 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
 
 class CustomerModel(BaseModel):
     STATE_REAL = 'real'
@@ -63,8 +65,18 @@ class CustomerModel(BaseModel):
         verbose_name = 'مشارکت کننده'
         verbose_name_plural = 'مشارکت کنندگان'
 
+
 class DocumentsModel(BaseModel):
-    is_active = models.BooleanField(verbose_name='فعال', default=False)
+    STATE_WAIT = 'wait'
+    STATE_ACCEPT = 'accept'
+    STATE_DENY = 'deny'
+    STATE_CHOICES = (
+        (STATE_WAIT, 'در انتظار بررسی'),
+        (STATE_ACCEPT, 'قبول شده'),
+        (STATE_DENY, 'رد شده')
+    )
+    is_active = models.BooleanField(verbose_name='فعال', default=True)
+    state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_WAIT)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
     file = models.FileField(verbose_name='مدرک', upload_to=documents_directory_path)
@@ -75,6 +87,7 @@ class DocumentsModel(BaseModel):
     class Meta:
         verbose_name = 'مدرک'
         verbose_name_plural = 'مدارک'
+
 
 class ExhibitionModel(BaseModel):
     is_active = models.BooleanField(verbose_name='فعال', default=True)
@@ -91,13 +104,23 @@ class ExhibitionModel(BaseModel):
         verbose_name = 'نمایشگاه'
         verbose_name_plural = 'نمایشگاه‌ها'
 
+
 class RequestModel(BaseModel):
+    STATE_WAIT = 'wait'
+    STATE_ACCEPT = 'accept'
+    STATE_DENY = 'deny'
+    STATE_CHOICES = (
+        (STATE_WAIT, 'در انتظار بررسی'),
+        (STATE_ACCEPT, 'قبول شده'),
+        (STATE_DENY, 'رد شده')
+    )
+    state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_WAIT)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
-    customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
-    exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='نمایشگاه')
+    customer = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, verbose_name='مشارکت کننده')
+    exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.CASCADE, verbose_name='نمایشگاه')
     area = models.IntegerField(verbose_name='متراژ', default=0)
     rules = models.BooleanField(verbose_name='قوانین')
-    is_active = models.BooleanField(verbose_name='فعال', default=False)
+    is_active = models.BooleanField(verbose_name='فعال', default=True)
 
     def __str__(self):
         return f"{self.customer.company} - {self.exhibition.title}"
@@ -105,6 +128,20 @@ class RequestModel(BaseModel):
     class Meta:
         verbose_name = 'درخواست'
         verbose_name_plural = 'درخواست‌ها'
+
+
+class MessagesModel(BaseModel):
+    is_active = models.BooleanField(verbose_name='فعال', default=True)
+    customer = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, verbose_name='مشارکت کننده')
+    text = models.TextField(verbose_name='متن پیام')
+
+    def __str__(self):
+        return f"{self.customer.company} - ({self.customer.firstname} {self.customer.lastname})"
+    
+    class Meta:
+        verbose_name = 'پیغام'
+        verbose_name_plural = 'پیغام‌ها'
+
 
 class InvoiceModel(BaseModel):
     is_active = models.BooleanField(verbose_name='فعال', default=False)
