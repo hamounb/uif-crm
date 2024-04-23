@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from .models import TokenModel
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
@@ -13,7 +14,7 @@ class SignUpForm(forms.Form):
     code = forms.CharField(
         max_length=10,
         validators=[is_code],
-        widget=forms.TextInput(attrs={'class':'form-control'}),
+        widget=forms.TextInput(attrs={'class':'form-control', 'oninvalid':'this.setCustomValidity("Please Enter valid email")'}),
         label='کد ملی',
     )
     mobile = forms.CharField(
@@ -27,7 +28,7 @@ class LoginForm(forms.Form):
     code = forms.CharField(
         max_length=10,
         validators=[is_code],
-        widget=forms.TextInput(attrs={'class':'form-control'}),
+        widget=forms.TextInput(attrs={'class':'form-control', 'title':'Please Enter valid email'}),
         label='کد ملی',
     )
     mobile = forms.CharField(
@@ -36,3 +37,14 @@ class LoginForm(forms.Form):
         widget=forms.TextInput(attrs={'class':'form-control'}),
         label='شماره موبایل',
     )
+
+class TokenForm(forms.ModelForm):
+
+    class Meta:
+        model = TokenModel
+        fields = (
+            'otp',
+        )
+        widgets = {
+            'otp': forms.TextInput(attrs={'class':'form-control'})
+        }
