@@ -65,7 +65,7 @@
                                     {{ form.mobile.label_tag }}
                                     <input class="form-control" type="text" name="mobile" 
                                     oninvalid="this.setCustomValidity('شماره موبایل نباید خالی باشد')"
-                                    oninput="setCustomValidity('')" autocomplete="current-mobile" required id="id_mobile">
+                                    oninput="setCustomValidity('')" autocomplete="current-mobile" maxlength="11" required id="id_mobile">
                                     {% if form.mobile.errors %}
                                         {% for error in form.mobile.errors %}
                                             <p class="text-danger">{{ error }}</p>

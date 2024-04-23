@@ -48,3 +48,11 @@ class TokenForm(forms.ModelForm):
         widgets = {
             'otp': forms.TextInput(attrs={'class':'form-control'})
         }
+
+class ChangeMobileForm(forms.Form):
+    mobile = forms.CharField(
+        max_length=11,
+        validators=[is_mobile],
+        widget=forms.TextInput(attrs={'class':'form-control'}),
+        label='شماره موبایل',
+    )
