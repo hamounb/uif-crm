@@ -6,7 +6,6 @@ from django.db import IntegrityError
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .models import TokenModel
-from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 
@@ -63,7 +62,7 @@ class SignInView(views.View):
             if auser is not None:
                 login(request, user)
                 return redirect('crm:index')
-            elif not user.is_active:
+            elif not user.is_active and user.check_password(mobile):
                 try:
                     tk = TokenModel.objects.get(user=user)
                 except TokenModel.DoesNotExist:
@@ -91,37 +90,40 @@ class MobileVerifyView(views.View):
         user = get_object_or_404(User, username=code)
         if not user.is_active:
             form = TokenForm()
-            return render(request, 'accounts/token.html', {'form':form})
+            return render(request, 'accounts/token.html', {'form':form, 'code':code})
         return redirect('accounts:signin')
     
     def post(self, request, code):
         user = get_object_or_404(User, username=code)
-        print(user)
         if not user.is_active:
             form = TokenForm(request.POST)
             try:
                 tk = TokenModel.objects.get(user=user)
-            except ObjectDoesNotExist:
-                return redirect('accounts:re-mobile')
+            except TokenModel.DoesNotExist:
+                return redirect('accounts:signin')
             if form.is_valid():
                 otp = form.cleaned_data['otp']
                 mobile = request.session.get('mo')
-                if tk.otp == otp:
+                if tk.otp != otp:
+                    messages.error(request, 'رمز یکبارمصرف اشتباه است!')
+                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
+                elif not user.check_password(mobile):
+                    messages.error(request, 'شماره موبایل اشتباه است!')
+                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
+                else:
+                    user.is_active = True
+                    user.save()
                     us = authenticate(username=code, password=mobile)
                     if us is not None:
-                        user.is_active = True
-                        user.save()
                         login(request, user)
-                        del request.session['mo']
-                        del request.session['un']
+                        try:
+                            del request.session['mo']
+                            del request.session['un']
+                        except KeyError:
+                            return redirect('crm:index')
                         return redirect('crm:index')
-                    else:
-                        return redirect('accounts:re-mobile')
-                else:
-                    messages.error(request, 'رمز یکبارمصرف اشتباه است!', extra_tags='danger')
-                    return render(request, 'accounts/token.html', {'form':form})
             else:
-                return render(request, 'accounts/token.html', {'form':form})
+                return render(request, 'accounts/token.html', {'form':form, 'code':code})
         else:
             return redirect('crm:index')
         
@@ -132,7 +134,7 @@ class ChangeMobileView(views.View):
         user = get_object_or_404(User, username=code)
         if not user.is_active:
             form = ChangeMobileForm()
-            return render(request, 'accounts/change-mobile.html', {'form':form})
+            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
         return redirect('accounts:signin')
     
     def post(self, request, code):
@@ -142,11 +144,40 @@ class ChangeMobileView(views.View):
             if form.is_valid():
                 mobile = form.cleaned_data.get('mobile')
                 user.set_password(mobile)
-                tk = TokenModel(user=user)
+                user.save()
+                try:
+                    tk = TokenModel.objects.get(user=user)
+                except TokenModel.DoesNotExist:
+                    tk = TokenModel(user=user)
+                    tk.save()
+                    tk.generate()
+                    request.session['mo'] = mobile
+                    return redirect('accounts:verify', code=code)
                 tk.save()
                 tk.generate()
                 tk.save()
+                request.session['un'] = code
                 request.session['mo'] = mobile
                 return redirect('accounts:verify', code=code)
-            return render(request, 'accounts/change-mobile.html', {'form':form})
+            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
         return redirect('accounts:signin')
+    
+
+class ReTokenView(views.View):
+
+    def get(self, request, code):
+        try:
+            user = User.objects.get(username=code)
+        except User.DoesNotExist:
+            return redirect('accounts:signin')
+        try:
+            tk = TokenModel.objects.get(user=user)
+        except TokenModel.DoesNotExist:
+            tk = TokenModel(user=user)
+            tk.save()
+            tk.generate()
+            tk.save()
+            return redirect('accounts:verify', code=code)
+        tk.generate()
+        tk.save()
+        return redirect('accounts:verify', code=code)

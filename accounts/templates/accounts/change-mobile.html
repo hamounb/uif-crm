@@ -32,12 +32,12 @@
                             {% csrf_token %}
                             <div class="row">
                                 <div class="col-lg-12">
-                                    <h3 class="mb-3"><b>تایید رمز یکبارمصرف</b></h3>
-                                    <p>لطفا رمز ۶ رقمی ارسال شده به شماره موبایل خود را وارد کنید!</p>
+                                    <h3 class="mb-3"><b>تغییر شماره موبایل</b></h3>
+                                    <p>تغییر شماره موبایل برای کد ملی {{ code }} می‌باشد!</p>
                                     {% if messages %}
                                         <ul class="messages">
                                             {% for message in messages %}
-                                            <li{% if message.extra_tags %} class="text-{{ message.extra_tags }}"{% endif %}>{{ message }}</li>
+                                            <li{% if message.tags %} class="text-{{ message.tags }}"{% endif %}>{{ message }}</li>
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -51,10 +51,10 @@
                                     <h5 class="text-danger">{{ message }}</h5>
                                 </div>
                                 <div class="col-lg-12 form-group">
-                                    {{ form.code.label_tag }}
-                                    {{ form }}
-                                    {% if form.code.errors %}
-                                        {% for error in form.code.errors %}
+                                    {{ form.mobile.label_tag }}
+                                    {{ form.mobile }}
+                                    {% if form.mobile.errors %}
+                                        {% for error in form.mobile.errors %}
                                             <p class="text-danger">{{ error }}</p>
                                         {% endfor %}
                                     {% endif %}
@@ -63,10 +63,7 @@
                                     <input class="btn btn-success" type="submit" value="تائید">
                                 </div>
                                 <div class="col-lg-9">
-                                    <h5 class="text-danger"> شماره موبایل را اشتباه وارد کردم > <a href="{% url 'accounts:change-mobile' code=code %}" class="btn btn-rounded btn-outline"> تغییر شماره موبایل</a></h5>
-                                </div>
-                                <div class="col-lg-4">
-                                    <a href="{% url 'accounts:re-token' code=code %}" class="btn">ارسال مجدد رمز</a>
+                                    <h5 class="text-danger"> حساب کاربری ندارم > <a href="{% url 'accounts:signup' %}" class="btn btn-rounded btn-outline"> ثبت نام</a></h5>
                                 </div>
                             </div>
                         </form>

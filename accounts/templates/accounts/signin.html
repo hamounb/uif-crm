@@ -23,7 +23,7 @@
             <div class="text-middle">
                 <div class="text-center m-b-30">
                     <a href="index.html" class="logo">
-                        <img src="{% static 'images/fav-logo.png' %}" alt="UIF Logo" style="max-width:10%">
+                        <img src="{% static 'images/fav-logo.png' %}" alt="UIF Logo" style="max-width:5%">
                     </a>
                 </div>
                 <div class="row">
@@ -37,7 +37,7 @@
                                     {% if messages %}
                                         <ul class="messages">
                                             {% for message in messages %}
-                                            <li{% if message.tags %} class="text-{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                            <li{% if message.tags == "error" %} class="text-danger"{% endif %}>{{ message }}</li>
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
