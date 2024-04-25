@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'jalali_date',
     'accounts.apps.AccountsConfig',
     'crm.apps.CrmConfig',
+    'staff.apps.StaffConfig',
 ]
 
 MIDDLEWARE = [

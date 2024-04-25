@@ -62,6 +62,10 @@ class CustomerModel(BaseModel):
         return f"{self.company}"
     
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["company", "code"], name='comcode'),
+            models.UniqueConstraint(fields=["sid"], name='specid')
+    ]
         verbose_name = 'مشارکت کننده'
         verbose_name_plural = 'مشارکت کنندگان'
 

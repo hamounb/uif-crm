@@ -158,7 +158,6 @@ class RequestsAddView(LoginRequiredMixin, views.View):
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
-        # req = customer.request_set.all().order_by('-created_date')
         if customer:
             form = RequestsForm()
             context = {

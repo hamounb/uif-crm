@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}
+ثبت مشخصات مشارکت کننده
+{% endblock title %}
+
+{% block content %}
+<section id="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>فرم ثبت اطلاعات</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.extra_tags == 'danger' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.extra_tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.user.label_tag }}
+                                    {{ form.user }}
+                                    {% if form.label_tag.errors %}
+                                        {% for error in form.label_tag.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="line my-4"></div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.state.label_tag }}
+                                    {{ form.state }}
+                                    {% if form.label_tag.errors %}
+                                        {% for error in form.label_tag.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-1">
+                                    {{ form.is_active.label_tag }}
+                                    {{ form.is_active }}
+                                    {% if form.label_tag.errors %}
+                                        {% for error in form.label_tag.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="line my-4"></div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.firstname.label_tag }}
+                                    {{ form.firstname }}
+                                    {% if form.firstname.errors %}
+                                        {% for error in form.firstname.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.lastname.label_tag }}
+                                    {{ form.lastname }}
+                                    {% if form.lastname.errors %}
+                                        {% for error in form.lastname.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.fathername.label_tag }}
+                                    {{ form.fathername }}
+                                    {% if form.fathername.errors %}
+                                        {% for error in form.fathername.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.code.label_tag }}
+                                    {{ form.code }}
+                                    {% if form.code.errors %}
+                                        {% for error in form.code.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="line my-4"></div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.company.label_tag }}
+                                    {{ form.company }}
+                                    {% if form.company.errors %}
+                                        {% for error in form.company.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.ceoname.label_tag }}
+                                    {{ form.ceoname }}
+                                    {% if form.ceoname.errors %}
+                                        {% for error in form.ceoname.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.ncode.label_tag }}
+                                    {{ form.ncode }}
+                                    {% if form.ncode.errors %}
+                                        {% for error in form.ncode.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.mobile.label_tag }}
+                                    {{ form.mobile }}
+                                    {% if form.mobile.errors %}
+                                        {% for error in form.mobile.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.phone.label_tag }}
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        {% for error in form.phone.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    {{ form.fax.label_tag }}
+                                    {{ form.fax }}
+                                    {% if form.fax.errors %}
+                                        {% for error in form.fax.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="line my-4"></div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    {{ form.email.label_tag }}
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        {% for error in form.email.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-3">
+                                    {{ form.postalcode.label_tag }}
+                                    {{ form.postalcode }}
+                                    {% if form.postalcode.errors %}
+                                        {% for error in form.postalcode.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-5">
+                                    {{ form.address.label_tag }}
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                        {% for error in form.address.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <input type="submit" class="btn btn-success" value="ذخیره اطلاعات">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% block script%}
+<script>
+    // Initialize Select2 on the select element
+    $(document).ready(function() {
+      $('#id_user').select2();
+    });
+  </script>
+{% endblock script %}
+{% endblock content %}

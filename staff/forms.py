@@ -1,7 +1,9 @@
 from django import forms
 from .models import *
+from crm.models import *
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
@@ -24,6 +26,7 @@ def is_postal(value):
         raise ValidationError('کد پستی صحیح نمی‌باشد!')
     
 class CustomerAddForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control', 'placeholder':'Pick a state...'}), required=True, label='کاربر')
     code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
     ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
@@ -34,7 +37,9 @@ class CustomerAddForm(forms.ModelForm):
     class Meta:
         model = CustomerModel
         fields = (
+                  'user',
                   'state',
+                  'is_active',
                   'firstname',
                   'lastname',
                   'fathername',
@@ -51,6 +56,7 @@ class CustomerAddForm(forms.ModelForm):
                   )
         widgets = {
             'state': forms.Select(attrs={'class':'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control'}),
             'firstname': forms.TextInput(attrs={'class':'form-control'}),
             'lastname': forms.TextInput(attrs={'class':'form-control'}),
             'fathername': forms.TextInput(attrs={'class':'form-control'}),
@@ -60,30 +66,18 @@ class CustomerAddForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }
 
+
 class DocumentForm(forms.ModelForm):
 
     class Meta:
         model = DocumentsModel
         fields = (
+            'state',
+            'is_active',
             'file',
         )
         widgets = {
+            'state': forms.Select(attrs={'class':'form-control', 'disabled':True}),
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'disabled':True}),
             'file': forms.FileInput(attrs={'value':'dd'})
-        }
-
-class RequestsForm(forms.ModelForm):
-
-    class Meta:
-        model = RequestModel
-        fields = (
-            'customer',
-            'exhibition',
-            'area',
-            'rules',
-        )
-        widgets = {
-            'customer': forms.Select(attrs={'class':'form-control', 'required':True}),
-            'exhibition': forms.Select(attrs={'class':'form-control', 'required':True}),
-            'area': forms.NumberInput(attrs={'class':'form-control'}),
-            'rules': forms.CheckboxInput(attrs={'required':True})
         }

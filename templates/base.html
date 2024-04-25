@@ -15,6 +15,9 @@
     <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/rtl.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
 </head>
 
 <body>
@@ -112,6 +115,12 @@
     <script src="{% static 'js/plugins.js' %}"></script>
 
     <script src="{% static 'js/functions.js' %}"></script>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include Select2 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+{% block script %}{% endblock script %}
 </body>
 
 </html>
