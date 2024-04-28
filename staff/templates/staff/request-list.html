@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+
+{% endblock title %}
+
+{% block content %}
+<section id="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>لیست درخواست‌ها</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>نام تجاری</th>
+                                            <th>نام و نشان</th>
+                                            <th>نمایشگاه</th>
+                                            <th>متراژ</th>
+                                            <th>تاریخ</th>
+                                            <th>قبول قوانین</th>
+                                            <th>وضعیت</th>
+                                            <th class="noExport">اقدامات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for req in req %}
+                                        <tr>
+                                            <td>{{ req.customer.company }}</td>
+                                            <td>{{ req.customer.firstname }} {{ req.customer.lastname}}</td>
+                                            <td>{{ req.exhibition.title }}</td>
+                                            <td>{{ req.area }}</td>
+                                            <td>{{ req.created_date }}</td>
+                                            <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
+                                            <td>
+                                                {% if req.state == "wait" %}
+                                                <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
+                                                {% else %}
+                                                -----
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="#">مشاهده</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
+<script>
+    $(document).ready(function () {
+        $('#datatable').DataTable({
+            "scrollY": "500px",
+            "scrollCollapse": true,
+            "paging": false
+        });
+    });
+</script>
+{% endblock script %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+
+{% endblock title %}
+
+{% block content %}
+<section id="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>لیست درخواست‌ها</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3 m-2">
+                                <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="table-responsive">
+                                <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>فعال</th>
+                                            <th>نام تجاری</th>
+                                            <th>نمایشگاه</th>
+                                            <th>قیمت</th>
+                                            <th>متراژ</th>
+                                            <th>تخفیف</th>
+                                            <th>ارزش افزوده</th>
+                                            <th>مبلغ نهایی</th>
+                                            <th>تاریخ</th>
+                                            <th>توضیحات</th>
+                                            <th class="noExport">اقدامات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for invoice in invoices %}
+                                        <tr>
+                                            <td>{% if invoice.is_active %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
+                                            <td>{{ invoice.customer.company }}</td>
+                                            <td>{{ invoice.exhibition.title }}</td>
+                                            <td>{{ invoice.price }}</td>
+                                            <td>{{ invoice.area }}</td>
+                                            <td>{{ invoice.discount }}</td>
+                                            <td>{{ invoice.value_added }}</td>
+                                            <td>{{ invoice.total_price }}</td>
+                                            <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                            <td>
+                                                {% if invoice.description %}
+                                                {{ invoice.description }}
+                                                {% else %}
+                                                -----
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="#">مشاهده</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#datatable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+{% endblock script %}

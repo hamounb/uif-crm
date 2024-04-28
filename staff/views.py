@@ -138,5 +138,69 @@ class RequestListView(PermissionRequiredMixin, views.View):
     permission_required = []
 
     def get(self, request):
-        req = RequestModel.objects.all().order_by('-created_date')
-        return render(request, 'staff/requests-list.html', {'req':req})
+        req = RequestModel.objects.filter(state=RequestModel.STATE_WAIT).order_by('-created_date')
+        return render(request, 'staff/request-list.html', {'req':req})
+    
+
+class RequestDetailsView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, rid):
+        req = get_object_or_404(RequestModel, pk=rid)
+        mes = MessagesModel.objects.filter(customer=req.customer)
+        form = MessageForm()
+        context = {
+            'req':req,
+            'mes':mes,
+            'form':form,
+        }
+        return render(request, 'staff/request-list.html', context)
+    
+    def post(self, request, rid):
+        req = get_object_or_404(RequestModel, pk=rid)
+        mes = MessagesModel.objects.filter(customer=req.customer)
+        form = MessageForm(request.POST)
+        context = {
+            'req':req,
+            'mes':mes,
+            'form':form,
+        }
+        if form.is_valid():
+            form.save(commit=False)
+            
+        return render(request, 'staff/request-list.html', context)
+    
+
+class InvoiceAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        form = InvoiceForm()
+        return render(request, 'staff/invoice-add.html', {'form':form})
+    
+    def post(self, request):
+        form = InvoiceForm(request.POST)
+        user = get_object_or_404(User, pk=request.user.id)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = CustomerModel.objects.get(company=form.cleaned_data.get('customer')).user
+            obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
+            obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
+            total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
+            obj.total_price = int(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
+            obj.user_created = user
+            obj.save()
+            messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ثبت شد.')
+            return render(request, 'staff/invoice-add.html', {'form':form})
+        return render(request, 'staff/invoice-add.html', {'form':form})
+    
+
+class InvoiceListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        invoices = InvoiceModel.objects.all().order_by('-created_date')
+        return render(request, 'staff/invoice-list.html', {'invoices':invoices})

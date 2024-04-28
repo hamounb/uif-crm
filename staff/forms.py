@@ -25,6 +25,14 @@ def is_postal(value):
     if len(value) != 10 or not str(value).isnumeric():
         raise ValidationError('کد پستی صحیح نمی‌باشد!')
     
+def is_positive(value):
+    if not str(value).isnumeric():
+        raise ValidationError('لطفاً فقط عدد وارد کنید!')
+    if str(value).isnumeric():
+        if int(value) < 1:
+            raise ValidationError('عدد باید بزرگتر از صفر باشد!')
+        
+    
 class CustomerAddForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control', 'placeholder':'Pick a state...'}), required=True, label='کاربر')
     code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
@@ -80,4 +88,40 @@ class DocumentForm(forms.ModelForm):
             'state': forms.Select(attrs={'class':'form-control', 'disabled':True}),
             'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'disabled':True}),
             'file': forms.FileInput(attrs={'value':'dd'})
+        }
+
+
+class MessageForm(forms.ModelForm):
+    STATE_WAIT = 'wait'
+    STATE_ACCEPT = 'accept'
+    STATE_DENY = 'deny'
+    STATE_CHOICES = (
+        (STATE_WAIT, 'در انتظار بررسی'),
+        (STATE_ACCEPT, 'قبول شده'),
+        (STATE_DENY, 'رد شده')
+    )
+    state = forms.ChoiceField(choices=STATE_CHOICES, widget=forms.Select(attrs={'class':'form-control'}, choices=STATE_CHOICES))
+    text = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control'}))
+
+
+class InvoiceForm(forms.ModelForm):
+    area = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="متراژ", validators=[is_positive])
+    discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=False)
+
+
+    class Meta:
+        model = InvoiceModel
+        fields = (
+            'is_active',
+            'customer',
+            'exhibition',
+            'area',
+            'discount',
+            'description',
+        )
+        widgets = {
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'checked':True}),
+            'customer': forms.Select(attrs={'class':'form-control'}),
+            'exhibition': forms.Select(attrs={'class':'form-control'}),
+            'description': forms.Textarea(attrs={'class':'form-control', 'rows':2}),
         }

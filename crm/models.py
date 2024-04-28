@@ -154,9 +154,9 @@ class InvoiceModel(BaseModel):
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='نمایشگاه')
     price = models.CharField(verbose_name='مبلغ', max_length=20)
     area = models.IntegerField(verbose_name='متراژ', default=0)
-    value_added = models.IntegerField(verbose_name='متراژ', default=0)
+    value_added = models.IntegerField(verbose_name='ارزش افزوده', default=0)
     discount = models.CharField(verbose_name='تخفیف', max_length=20, null=True, blank=True)
-    total_price = models.CharField(verbose_name='مبلغ', max_length=20)
+    total_price = models.CharField(verbose_name='مبلغ نهایی', max_length=20)
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
 
     def __str__(self):
