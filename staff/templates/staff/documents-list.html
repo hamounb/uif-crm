@@ -3,19 +3,19 @@
 {% load static %}
 
 {% block title %}
-
+لیست مدارک مشارکت کنندگان
 {% endblock title %}
 
 {% block content %}
 <section id="page-content">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست درخواست‌ها</h2>
-                        <p>لطفا درخواست خود را برای نمایشگاه مورد نظر با متراژ مورد نیاز ارسال کنید.</p>
-                        <p class="text-danger">توجه داشته باشید که متراژ ارسالی شما بصورت قطعی نمی‌باشد و در صورت قبول درخواست شما، متراژ با توجه به غرفه بندی سالن‌ها ممکن است تغییر کند!</p>
+                        <h2>لیست مدارک</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
                 </div>
             </div>
@@ -24,41 +24,42 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
+                            <div class="form-group col-lg-2">
+                                <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                            </div>
                             <div class="col-lg-12">
-                                <div class="table-responsive">
                                 <table id="datatable" class="table table-bordered table-hover" style="width:100%">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th>نام تجاری</th>
-                                            <th>نمایشگاه</th>
-                                            <th>متراژ</th>
-                                            <th>تاریخ</th>
-                                            <th>قبول قوانین</th>
+                                            <th>کد</th>
                                             <th>وضعیت</th>
+                                            <th>کاربر</th>
+                                            <th>نام تجاری</th>
+                                            <th>مدارک</th>
+                                            <th>تاریخ</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for req in req %}
+                                        {% for doc in doc %}
                                         <tr>
-                                            <td>{{ req.customer.company }}</td>
-                                            <td>{{ req.exhibition.title }}</td>
-                                            <td>{{ req.area }}</td>
-                                            <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                            <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
+                                            <td>{{ doc.pk }}</td>
                                             <td>
-                                                {% if req.state == "wait" %}
+                                                {% if doc.state == "wait" %}
                                                 <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
-                                                {% elif req.sate == "accept" %}
+                                                {% elif doc.state == "accept"  %}
                                                 <span class="badge badge-pill badge-success">قبول</span>
                                                 {% else %}
                                                 <span class="badge badge-pill badge-danger">رد شده</span>
                                                 {% endif %}
                                             </td>
+                                            <td>{{ doc.user.username }}</td>
+                                            <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></td>
+                                            <td>{{ doc.customer.company }}</td>
+                                            <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -70,4 +71,15 @@
 {% endblock content %}
 {% block script %}
 
+<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#datatable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
 {% endblock script %}

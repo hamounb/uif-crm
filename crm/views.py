@@ -9,25 +9,39 @@ from .forms import *
 
 # Create your views here.
 
+class HelpView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        return render(request, 'crm/help.html')
+
+
 class IndexView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        print(user.username)
+        customer = CustomerModel.objects.filter(user=user)
+        mes = MessagesModel.objects.filter(Q(customer__user=user) & Q(is_active=True)).order_by('-created_date')
+        customer = CustomerModel.objects.filter(user=user)
+        invoices = InvoiceModel.objects.filter(Q(user=user) & Q(is_active=True)).order_by('-created_date')
+        context = {
+            'mes':mes,
+            'customer':customer,
+            'invoices':invoices,
+            'customer':customer,
+        }
+        return render(request, 'crm/index.html', context)
+    
+class CustomerListView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(user=user)
         if customer:
-            return render(request, 'crm/index.html')
-        else:
-            return render(request, 'crm/help.html')
-    
-# class CustomerView(LoginRequiredMixin, views.View):
-#     login_url = 'accounts:signin'
-
-#     def get(self, request):
-#         user = get_object_or_404(User, pk=request.user.id)
-#         customer = CustomerModel.objects.filter(user=user)
-#         if customer:
+            return render(request, 'crm/customer-list.html', {'customer':customer})
+        return redirect('crm:customer-add')
 
     
 class CustomerAddView(LoginRequiredMixin, views.View):
@@ -51,6 +65,7 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
                     return render(request, 'crm/customer-add.html', {'form':form})
                 else:
+                    obj.code = user.username
                     obj.user = user
                     obj.user_modified = user
                     obj.user_created = user
@@ -58,6 +73,7 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                     messages.success(request, f"مشتری حقوقی {obj.company} اطلاعات شما ثبت شد.")
                     return redirect('crm:customer-change', id=obj.id)
             else:
+                obj.code = user.username
                 obj.ceoname = ''
                 obj.ncode = ''
                 obj.user = user
@@ -150,6 +166,15 @@ class DocumentsView(LoginRequiredMixin, views.View):
             'docs':docs,
         }
         return render(request, 'crm/documents.html', context)
+    
+
+class RequestsListView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        req = RequestModel.objects.filter(user=user).order_by('-created_date')
+        return render(request, 'crm/requests-list.html', {'req':req})
 
 
 class RequestsAddView(LoginRequiredMixin, views.View):

@@ -68,10 +68,10 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = []
 
-    def get(self, request, id):
-        customer = get_object_or_404(CustomerModel, pk=id)
+    def get(self, request, cid):
+        customer = get_object_or_404(CustomerModel, pk=cid)
         form = CustomerAddForm(instance=customer)
-        docs = DocumentsModel.objects.filter(customer=customer)
+        docs = DocumentsModel.objects.filter(customer=customer).order_by('-created_date')
         form2 = DocumentForm()
         context = {
             'form':form,
@@ -81,8 +81,8 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
         }
         return render(request, 'staff/customer-change.html', context)
     
-    def post(self, request, id):
-        customer = get_object_or_404(CustomerModel, pk=id)
+    def post(self, request, cid):
+        customer = get_object_or_404(CustomerModel, pk=cid)
         user = get_object_or_404(User, pk=request.user.id)
         form = CustomerAddForm(request.POST, instance=customer)
         form2 = DocumentForm()
@@ -111,7 +111,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
                 obj.user_modified = user
                 obj.save()
                 messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                return redirect('staff:customer-change', id=customer.pk)
+                return redirect('staff:customer-change', cid=customer.pk)
         return render(request, 'staff/customer-change.html', context)
     
 
@@ -122,15 +122,44 @@ class DocumentsAddView(PermissionRequiredMixin, views.View):
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = user
-            obj.customer = customer
+        form2 = DocumentForm(request.POST, request.FILES)
+        if form2.is_valid():
+            file = form2.cleaned_data['file']
+            obj = DocumentsModel(
+                is_active = True,
+                state = DocumentsModel.STATE_ACCEPT,
+                file = file,
+                user = customer.user,
+                user_created = user,
+                user_modified = user,
+                customer = customer,
+            )
             obj.save()
             messages.success(request, f"مدرک شما با موفقیت بارگذاری شد!")
-            return redirect('staff:customer-change', id=customer.pk)
-        return redirect('staff:customer-change', id=customer.pk)
+            return redirect('staff:customer-change', cid=customer.pk)
+        return redirect('staff:customer-change', cid=customer.pk)
+    
+
+class DocumentsDelView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, fid):
+        file = get_object_or_404(DocumentsModel, pk=fid)
+        file.file.delete(save=True)
+        file.delete()
+        messages.success(request, "مدرک انتخابی شما با موفقیت حذف شد.")
+        return redirect('staff:customer-change', cid=file.customer.pk)
+
+
+
+class DocumentsListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        doc = DocumentsModel.objects.filter(Q(state=DocumentsModel.STATE_WAIT) | Q(state=DocumentsModel.STATE_DENY)).order_by('-created_date')
+        return render(request, 'staff/documents-list.html', {'doc':doc})
     
 
 class RequestListView(PermissionRequiredMixin, views.View):
@@ -150,26 +179,61 @@ class RequestDetailsView(PermissionRequiredMixin, views.View):
         req = get_object_or_404(RequestModel, pk=rid)
         mes = MessagesModel.objects.filter(customer=req.customer)
         form = MessageForm()
+        form2 = RequestAcceptForm()
         context = {
             'req':req,
             'mes':mes,
             'form':form,
+            'form2':form2,
         }
-        return render(request, 'staff/request-list.html', context)
+        return render(request, 'staff/request-details.html', context)
     
     def post(self, request, rid):
         req = get_object_or_404(RequestModel, pk=rid)
         mes = MessagesModel.objects.filter(customer=req.customer)
         form = MessageForm(request.POST)
+        form2 = RequestAcceptForm(request.POST)
         context = {
             'req':req,
             'mes':mes,
             'form':form,
+            'form':form2,
         }
-        if form.is_valid():
-            form.save(commit=False)
-            
-        return render(request, 'staff/request-list.html', context)
+        if form.is_valid() and 'btn1' in request.POST:
+            text = form.cleaned_data.get('text')
+            mes = MessagesModel()
+            mes.text = text
+            mes.is_active = True
+            mes.customer = req.customer
+            mes.save()
+            req.state = req.STATE_DENY
+            req.save()
+            messages.success(request, 'پیغام شما با موفقیت ارسال شد.')
+            return render(request, 'staff/request-details.html', context)
+        if form2.is_valid() and 'btn2' in request.POST:
+            area = form2.cleaned_data.get('area')
+            discount = form2.cleaned_data.get('discount')
+            description = form2.cleaned_data.get('description')
+            total = int(req.exhibition.price) * int(area) + int(int(req.exhibition.price) * int(area) * int(req.exhibition.value_added) / 100)
+            invoice = InvoiceModel(
+                is_active=True,
+                user=req.user,
+                customer=req.customer,
+                exhibition=req.exhibition,
+                price=req.exhibition.price,
+                area=area,
+                value_added=req.exhibition.value_added,
+                discount=discount,
+                total_price=total,
+                description=description,
+            )
+            invoice.save()
+            req.state = req.STATE_ACCEPT
+            req.save()
+            messages.success(request, f'موافقت شما با درخواست {req.customer.company} برای نمایشگاه {req.exhibition.title} به متراژ {area} ثبت شد.')
+            return render(request, 'staff/request-details.html', context)
+        messages.error(request, 'درخواست عملیات شما با خطا مواجه شد!', extra_tags="danger")
+        return redirect('staff:request-details', rid=req.pk)
     
 
 class InvoiceAddView(PermissionRequiredMixin, views.View):

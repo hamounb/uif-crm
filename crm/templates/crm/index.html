@@ -1,52 +1,103 @@
-{% extends "base.html" %}
+{% extends "base-c.html" %}
+{% load jalali_tags %}
 
 {% block title %}
-خانه | مدیریت حساب
+صفحه اصلی | مدیریت حساب
 {% endblock title %}
 
 {% block content %}
 
 <section id="page-content" class="background-light">
     <div class="container">
+        {% for mes in mes %}
+                        {% if forloop.last %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            این یک هشدار خطر است - آن را بررسی کنید!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
+        {% endif %}
+                    {% endfor %}
 
+        <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
+            <div class="grid-item">
+                <div class="widget widget-notification p-cb">
+                    <h4 class="mb-0">حساب ها</h4>
+                    {% for customer in customer %}
+                        {% if forloop.last %}
+                            <p class="text-primary">شما {{ forloop.counter }} حساب فعال دارید</p>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="row">
+                        {% for customer in customer%}
+                        <div class="col-lg-6">
+                            <h5 class="">{{ customer.company }}</h5>
+                            {% if customer.state == "legal"%}
+                                {% if customer.ceoname %}
+                                    <p>نوع حساب: {{ customer.get_state_display }}</p>
+                                    <p>نام مدیرعامل: {{ customer.ceoname }}</p>
+                                    <p>شناسه ملی: {{ customer.ncode }}</p>
+                                    <p>شماره موبایل: {{ customer.mobile }}</p>
+                                {% endif %}
+                            {% else %}
+                                <p>نوع حساب: {{ customer.get_state_display }}</p>
+                                <p>نام و نشان: {{ customer.firstname }} {{ customer.lastname }}</p>
+                                <p>کد ملی: {{ customer.code }}</p>
+                                <p>شماره موبایل: {{ customer.mobile }}</p>
+                            {% endif %}
+
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+                    <a href="#" class="text-theme">مشاهده حساب ها</a>
+                </div>
+            </div>
+        </div>
         <div class="grid-layout grid-3-columns" data-item="grid-item" data-margin="10">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
-                    <h4 class="mb-0">اعلان ها</h4>
-                    <p class="text-muted">شما 4 اعلان جدید دارید</p>
+                    <h4 class="mb-0">پیام‌ ها</h4>
+                    {% for mes in mes %}
+                        {% if forloop.last %}
+                            <p class="text-muted">شما {{ forloop.counter }} پیغام جدید دارید</p>
+                        {% endif %}
+                    {% endfor %}
+                    {% for mes in mes %}
+                    {% if forloop.counter < 5 %}
                     <div class="notification-item notification-new">
                         <div class="notification-meta">
-                            <a href="#">سفارش جدید به تازگی ثبت شده است</a>
-                            <span>18:20</span>
+                            <a href="#">{{ mes.text|safe|truncatewords:8 }}</a>
+                            <span>{{ mes.created_date|to_jalali:'%Y/%m/%d' }}</span>
                         </div>
                     </div>
-                    <div class="notification-item notification-new">
-                        <div class="notification-image"> <a href="#"><img src="images/shop/products/11.jpg"></a>
-                        </div>
-                        <div class="notification-meta">
-                            <a href="#">حساب جدید ایجاد می شود</a>
-                            <span>22:03</span>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-image"> <a href="#"><img src="images/shop/products/10.jpg"></a>
-                        </div>
-                        <div class="notification-meta">
-                            <a href="#">پشتیبان گیری سرور با موفقیت به پایان رسید</a>
-                            <span>14:12</span>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-image"> <a href="#"><img src="images/shop/products/11.jpg"></a>
-                        </div>
-                        <div class="notification-meta">
-                            <a href="#">فایل سند وارد نشد</a>
-                            <span>11:03</span>
-                        </div>
-                    </div>
+                    {% endif %}
+                    {% endfor %}
                     <hr>
                     <a href="#" class="text-theme">مشاهده همه اعلان ها</a>
                 </div>
+            </div>
+            <div class="grid-item">
+
+                <div class="widget widget-archive p-cb">
+                    <h4 class="mb-0">فاکتورها</h4>
+                    {% for invoice in invoices %}
+                        {% if forloop.last %}
+                        <p class="text-danger">شما {{ forloop.counter }} فاکتور پرداخت نشده دارید</p>
+                        {% endif %}
+                    {% endfor %}
+                    <ul class="list list-lines">
+                        {% for invoice in invoices %}
+                        {% if forloop.counter < 3 %}
+                        <li>{{ forloop.counter }} - نمایشگاه {{ invoice.exhibition.title }} به مبلغ {{ invoice.total_price }} ریال<a class="btn btn-xs" style="float:left">پرداخت</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <hr>
+                    <a href="#" class="text-theme">مشاهده همه فاکتورها</a>
+                </div>
+
             </div>
         </div>
 

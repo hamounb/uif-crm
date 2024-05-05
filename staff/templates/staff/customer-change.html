@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load jalali_tags %}
 {% block title %}
-ثبت مشخصات مشارکت کننده
+{{ customer.company }} | جزئیات حساب
 {% endblock title %}
 
 {% block content %}
@@ -10,7 +11,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>فرم ثبت اطلاعات مشارکت کنندگان</h2>
+                        <h2>جزئیات مشارکت کننده {{ customer.company }}</h2>
                         <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح سیستم با مشکل مواجه خواهد شد!</p>
                         <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
@@ -26,10 +27,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -193,6 +194,63 @@
                             <div class="line my-4"></div>
                             <input type="submit" class="btn btn-success" value="ذخیره اطلاعات">
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>کد</th>
+                                            <th>وضعیت</th>
+                                            <th>مدارک</th>
+                                            <th>تاریخ</th>
+                                            <th>حذف</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for doc in docs %}
+                                        <tr>
+                                            <td>{{ doc.pk }}</td>
+                                            <td>
+                                                {% if doc.state == "wait" %}
+                                                <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
+                                                {% elif doc.state == "accept"  %}
+                                                <span class="badge badge-pill badge-success">قبول</span>
+                                                {% else %}
+                                                <span class="badge badge-pill badge-danger">رد شده</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if doc.file %}
+                                                <a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                            <td><a href="{% url 'staff:documents-del' fid=doc.pk %}" class="btn btn-danger btn-xs">X</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-lg-2">
+                                <form method="post" action="{% url 'staff:documents-add' id=customer.id %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    {{ form2.file.label_tag }}
+                                    {{ form2.file }}
+                                    {% if form2.file.errors %}
+                                        {% for error in form2.file.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <input type="submit" class="btn btn-success" value="بارگذاری">
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

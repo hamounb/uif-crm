@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-c.html" %}
 
 {% block title %}
 ثبت مشخصات مشارکت کننده
@@ -83,10 +83,10 @@
                                     {% endif %}
                                 </div>
                                 <div class="form-group col-md-4">
-                                    {{ form.code.label_tag }}
-                                    {{ form.code }}
-                                    {% if form.code.errors %}
-                                        {% for error in form.code.errors %}
+                                    {{ form.mobile.label_tag }}
+                                    {{ form.mobile }}
+                                    {% if form.mobile.errors %}
+                                        {% for error in form.mobile.errors %}
                                             <p class="text-danger">{{ error }}</p>
                                         {% endfor %}
                                     {% endif %}
@@ -123,15 +123,6 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    {{ form.mobile.label_tag }}
-                                    {{ form.mobile }}
-                                    {% if form.mobile.errors %}
-                                        {% for error in form.mobile.errors %}
-                                            <p class="text-danger">{{ error }}</p>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
                                 <div class="form-group col-md-4">
                                     {{ form.phone.label_tag }}
                                     {{ form.phone }}

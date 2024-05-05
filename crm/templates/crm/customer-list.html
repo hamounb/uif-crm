@@ -1,20 +1,18 @@
-{% extends "base.html" %}
+{% extends "base-c.html" %}
 {% load jalali_tags %}
-{% load static %}
-
 {% block title %}
-لیست مشارکت کنندگان
+لیست پروفایل‌های من
 {% endblock title %}
 
 {% block content %}
 <section id="page-content">
-    <div class="container-fluid">
+    <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست مشارکت کنندگان</h2>
-                        <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
+                        <h2>لیست پروفایل‌های من</h2>
+                        <p>لطفاً از صحیح و بروز بودن اطلاعات خود اطمینان حاصل فرمایید!</p>
                         <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
                 </div>
@@ -25,48 +23,47 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-12">
+                                <div class="table-responsive">
                                 <table id="datatable" class="table table-bordered table-hover" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>کد</th>
-                                            <th>کد معین</th>
-                                            <th>کاربر</th>
                                             <th>نوع کاربر</th>
                                             <th>نام و نشان</th>
                                             <th>کدملی</th>
                                             <th>نام تجاری</th>
                                             <th>موبایل</th>
                                             <th>تاریخ</th>
+                                            <th>وضعیت</th>
                                             <th>اقدامات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for customer in customer %}
                                         <tr>
-                                            <td>{{ customer.pk }}</td>
-                                            <td>{% if customer.sid %}
-                                                {{ customer.sid }}
-                                                {% else %}
-                                                ندارد
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ customer.user.username }}</td>
                                             <td>{% if customer.state == "legal" %}
                                                 <h4><span class="badge badge-pill badge-info">{{ customer.get_state_display }}</span></h4>
                                                 {% else %}
                                                 <h4><span class="badge badge-pill badge-light">{{ customer.get_state_display }}</span></h4>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ customer.firstname }} {{ customer.lastname}}</td>
+                                            <td>{{ customer.firstname }} {{ customer.lastname }}</td>
                                             <td>{{ customer.code }}</td>
                                             <td>{{ customer.company }}</td>
                                             <td>{{ customer.mobile }}</td>
                                             <td>{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                            <td><a href="{% url 'staff:customer-change' cid=customer.pk %}">مشاهده</a></td>
+                                            <td>
+                                                {% if customer.is_active %}
+                                                <span class="badge badge-success">قبول</span>
+                                                {% else %}
+                                                <span class="badge badge-danger">رد شده</span>
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="{% url 'crm:customer-change' id=customer.pk %}">مشاهده</a></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -76,16 +73,7 @@
     </div>
 </section>
 {% endblock content %}
+
 {% block script %}
 
-<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
-<script>
-    $(document).ready(function () {
-        $('#datatable').DataTable({
-            "scrollY": "700px",
-            "scrollCollapse": true,
-            "paging": false
-        });
-    });
-</script>
 {% endblock script %}

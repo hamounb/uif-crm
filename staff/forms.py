@@ -34,7 +34,7 @@ def is_positive(value):
         
     
 class CustomerAddForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control', 'placeholder':'Pick a state...'}), required=True, label='کاربر')
+    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control'}), required=True, label='کاربر')
     code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
     ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
@@ -64,7 +64,7 @@ class CustomerAddForm(forms.ModelForm):
                   )
         widgets = {
             'state': forms.Select(attrs={'class':'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class':'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}),
             'firstname': forms.TextInput(attrs={'class':'form-control'}),
             'lastname': forms.TextInput(attrs={'class':'form-control'}),
             'fathername': forms.TextInput(attrs={'class':'form-control'}),
@@ -75,33 +75,18 @@ class CustomerAddForm(forms.ModelForm):
         }
 
 
-class DocumentForm(forms.ModelForm):
-
-    class Meta:
-        model = DocumentsModel
-        fields = (
-            'state',
-            'is_active',
-            'file',
-        )
-        widgets = {
-            'state': forms.Select(attrs={'class':'form-control', 'disabled':True}),
-            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'disabled':True}),
-            'file': forms.FileInput(attrs={'value':'dd'})
-        }
+class DocumentForm(forms.Form):
+    file = forms.FileField(label='مدرک')
 
 
-class MessageForm(forms.ModelForm):
-    STATE_WAIT = 'wait'
-    STATE_ACCEPT = 'accept'
-    STATE_DENY = 'deny'
-    STATE_CHOICES = (
-        (STATE_WAIT, 'در انتظار بررسی'),
-        (STATE_ACCEPT, 'قبول شده'),
-        (STATE_DENY, 'رد شده')
-    )
-    state = forms.ChoiceField(choices=STATE_CHOICES, widget=forms.Select(attrs={'class':'form-control'}, choices=STATE_CHOICES))
-    text = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control'}))
+class MessageForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control', 'rows':2}), label="توضیحات", required=False)
+
+
+class RequestAcceptForm(forms.Form):
+    area = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="متراژ", validators=[is_positive])
+    discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=False)
+    description = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control', 'rows':2}), label="توضیحات", required=False)
 
 
 class InvoiceForm(forms.ModelForm):

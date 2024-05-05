@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-c.html" %}
 
 {% block title %}
 ثبت مشخصات مشارکت کننده
@@ -18,40 +18,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <form method="post" action="{% url 'crm:documents-add' id=customer.id %}" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <div class="form-row">
-                                        <div class="form-group col-lg-3">
-                                            {{ form2.file.label_tag }}
-                                                {{ form2.file }}
-                                            {% if form2.label_tag.errors %}
-                                                {% for error in form2.label_tag.errors %}
-                                                    <p class="text-danger">{{ error }}</p>
-                                                {% endfor %}
-                                            {% endif %}
-                                            <input type="submit" class="btn btn-success btn-sm" value="بارگذاری">
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="col-lg-6">
-                                {% for doc in docs %}
-                                <div class="post-thumbnail-list">
-                                    <div class="post-thumbnail-entry">
-                                        <a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
             {% if messages %}
             <div class="col-lg-12">
                 {% for message in messages %}
@@ -78,7 +45,7 @@
                         <form method="post">
                             {% csrf_token %}
                             <div class="form-row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.state.label_tag }}
                                     {{ form.state }}
                                     {% if form.label_tag.errors %}
@@ -90,7 +57,7 @@
                             </div>
                             <div class="line my-4"></div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.firstname.label_tag }}
                                     {{ form.firstname }}
                                     {% if form.firstname.errors %}
@@ -99,7 +66,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.lastname.label_tag }}
                                     {{ form.lastname }}
                                     {% if form.lastname.errors %}
@@ -108,7 +75,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.fathername.label_tag }}
                                     {{ form.fathername }}
                                     {% if form.fathername.errors %}
@@ -117,11 +84,11 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
-                                    {{ form.code.label_tag }}
-                                    {{ form.code }}
-                                    {% if form.code.errors %}
-                                        {% for error in form.code.errors %}
+                                <div class="form-group col-lg-4">
+                                    {{ form.mobile.label_tag }}
+                                    {{ form.mobile }}
+                                    {% if form.mobile.errors %}
+                                        {% for error in form.mobile.errors %}
                                             <p class="text-danger">{{ error }}</p>
                                         {% endfor %}
                                     {% endif %}
@@ -129,7 +96,7 @@
                             </div>
                             <div class="line my-4"></div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.company.label_tag }}
                                     {{ form.company }}
                                     {% if form.company.errors %}
@@ -138,7 +105,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.ceoname.label_tag }}
                                     {{ form.ceoname }}
                                     {% if form.ceoname.errors %}
@@ -147,7 +114,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.ncode.label_tag }}
                                     {{ form.ncode }}
                                     {% if form.ncode.errors %}
@@ -158,16 +125,7 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    {{ form.mobile.label_tag }}
-                                    {{ form.mobile }}
-                                    {% if form.mobile.errors %}
-                                        {% for error in form.mobile.errors %}
-                                            <p class="text-danger">{{ error }}</p>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.phone.label_tag }}
                                     {{ form.phone }}
                                     {% if form.phone.errors %}
@@ -176,7 +134,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.fax.label_tag }}
                                     {{ form.fax }}
                                     {% if form.fax.errors %}
@@ -188,7 +146,7 @@
                             </div>
                             <div class="line my-4"></div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-lg-4">
                                     {{ form.email.label_tag }}
                                     {{ form.email }}
                                     {% if form.email.errors %}
@@ -197,7 +155,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-lg-3">
                                     {{ form.postalcode.label_tag }}
                                     {{ form.postalcode }}
                                     {% if form.postalcode.errors %}
@@ -206,7 +164,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-5">
+                                <div class="form-group col-lg-5">
                                     {{ form.address.label_tag }}
                                     {{ form.address }}
                                     {% if form.address.errors %}

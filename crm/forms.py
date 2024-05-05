@@ -24,7 +24,6 @@ def is_postal(value):
         raise ValidationError('کد پستی صحیح نمی‌باشد!')
     
 class CustomerAddForm(forms.ModelForm):
-    code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
     ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
@@ -38,7 +37,6 @@ class CustomerAddForm(forms.ModelForm):
                   'firstname',
                   'lastname',
                   'fathername',
-                  'code',
                   'ceoname',
                   'company',
                   'ncode',

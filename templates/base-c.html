@@ -47,11 +47,11 @@
                     <div class="header-extras">
                         <ul>
                             <li>
-                                <a id="btn-search" href="#"> <i class="icon-search"></i></a>
+                                <a id="btn-search" href="#"> <i class="icon-bell"></i></a>
                             </li>
                             <li>
                                 <div class="p-dropdown">
-                                    <a href="#"><i class="icon-globe"></i><span>فا</span></a>
+                                    <a href="#"><i class="icon-bell"></i><span class="text-danger"><b>4</b></span></a>
                                     <ul class="p-dropdown-content">
                                         <li><a href="#">فارسی</a></li>
                                         <li><a href="#">انگلیسی</a></li>
@@ -71,12 +71,12 @@
                         <div class="container">
                             <nav>
                                 <ul>
-                                    <li><a href="index.html">خانه</a></li>
-                                    <li class="dropdown"><a href="#">مشارکت کنندگان</a>
+                                    <li><a href="{% url 'crm:index' %}">خانه</a></li>
+                                    <li class="dropdown"><a href="#">پروفایل‌ها</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="{% url 'staff:customer-list' %}">لیست همه</a> </li>
-                                            <li><a href="{% url 'staff:customer-add' %}"> جدید</a> </li>
-                                            <li><a href="{% url 'staff:documents-list' %}">مدارک</a> </li>
+                                            <li><a href="{% url 'crm:customer-list' %}">لیست همه</a> </li>
+                                            <li><a href="{% url 'crm:customer-add' %}"> جدید</a> </li>
+                                            {% comment %} <li><a href="{% url 'crm:documents-list' %}">مدارک</a> </li> {% endcomment %}
                                         </ul>
                                     </li>
                                     <li class="dropdown"><a href="index.html">مالی</a>
@@ -85,19 +85,14 @@
                                             <li><a href="#">پرداخت‌ها</a></li>
                                         </ul>
                                     </li>
-                                    <li class="dropdown"><a href="index.html">نمایشگاه‌ها</a>
+                                    <li class="dropdown"><a href="#">درخواست‌ها</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#">لیست همه</a></li>
-                                            <li><a href="#">جدید</a></li>
+                                            <li><a href="{% url 'crm:request-list' %}">لیست همه</a></li>
+                                            <li><a href="{% url 'crm:request-add' %}">جدید</a></li>
                                         </ul>
                                     </li>
-                                    <li><a href="{% url 'staff:request-list' %}">درخواست‌ها</a></li>
-                                    <li class="dropdown"><a href="index.html">پیام‌ها</a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">لیست همه</a></li>
-                                            <li><a href="#"> جدید</a></li>
-                                        </ul>
-                                    </li>
+                                    <li><a href="index.html">پیام‌ها</a>  </li>
+                                    <li><a href="{% url 'crm:help' %}">راهنما</a></li>
                                 </ul>
                             </nav>
                         </div>
