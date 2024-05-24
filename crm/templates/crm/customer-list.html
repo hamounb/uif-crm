@@ -28,10 +28,7 @@
                                     <thead>
                                         <tr>
                                             <th>نوع کاربر</th>
-                                            <th>نام و نشان</th>
-                                            <th>کدملی</th>
                                             <th>نام تجاری</th>
-                                            <th>موبایل</th>
                                             <th>تاریخ</th>
                                             <th>وضعیت</th>
                                             <th>اقدامات</th>
@@ -46,16 +43,13 @@
                                                 <h4><span class="badge badge-pill badge-light">{{ customer.get_state_display }}</span></h4>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ customer.firstname }} {{ customer.lastname }}</td>
-                                            <td>{{ customer.code }}</td>
                                             <td>{{ customer.company }}</td>
-                                            <td>{{ customer.mobile }}</td>
                                             <td>{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                             <td>
                                                 {% if customer.is_active %}
                                                 <span class="badge badge-success">قبول</span>
                                                 {% else %}
-                                                <span class="badge badge-danger">رد شده</span>
+                                                <span class="badge badge-danger">غیرفعال</span>
                                                 {% endif %}
                                             </td>
                                             <td><a href="{% url 'crm:customer-change' id=customer.pk %}">مشاهده</a></td>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-c.html" %}
 
 {% block title %}
 ثبت مشخصات مشارکت کننده
@@ -46,7 +46,7 @@ aria-hidden="true">
 </div>
 </div>
 
-<section id="page-content">
+<section id="page-content" class="background-light">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -71,6 +71,13 @@ aria-hidden="true">
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                             <strong><i class="fa fa-check-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'warning' %}
+                        <div role="alert" class="alert alert-warning alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> توجه!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}

@@ -1,0 +1,40 @@
+{% extends "base-c.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+پیغام ها
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" data-bg-image="{% static 'images/1.jpg' %}">
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2>پیغام‌های من</h2>
+                <p>لطفاً اگر پیغام خوانده نشده دارید بعد از خواندن پیغام دکمه <span class="badge badge-success">خواندم</span> را بزنید.</p>
+            </div>
+        </div>
+
+        <div class="grid-layout grid-1-columns testimonial" data- data-item="grid-item">
+            <div class="grid-item">
+                {% for mes in mes %}
+                <div class="widget clearfix widget-blog-articles p-cb" style="background-color: mistyrose">
+                    <ul class="list-posts list-medium">
+                        <li>
+                            {% if mes.is_active %}
+                            <h5><b><em>{{ mes.text }}</em></b><span style="float:left"><a href="{% url 'crm:message-done' mid=mes.id %}" class="btn btn-xs btn-success">خواندم</a></span></h5>
+                            {% else %}
+                            <p>{{ mes.text }}<span class="float-right"> <i class="fa fa-check"></i></span></p>
+                            {% endif %}
+                            <small>{{ mes.customer.company }}</small>
+                            <span class="float-right">{{ mes.created_date|to_jalali:'%H:%M - %Y/%m/%d' }}</span>
+                        </li>
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -22,7 +22,7 @@
 <body>
 </head>
 
-<body>
+<body data-icon="17">
 
     <div class="body-inner">
         <header id="header" data-fullwidth="true" class="header-always-fixed">
@@ -47,17 +47,20 @@
                     <div class="header-extras">
                         <ul>
                             <li>
-                                <a id="btn-search" href="#"> <i class="icon-bell"></i></a>
-                            </li>
-                            <li>
                                 <div class="p-dropdown">
-                                    <a href="#"><i class="icon-bell"></i><span class="text-danger"><b>4</b></span></a>
+                                    <a href="#"><i class="icon-user"></i></a>
                                     <ul class="p-dropdown-content">
-                                        <li><a href="#">فارسی</a></li>
-                                        <li><a href="#">انگلیسی</a></li>
-                                        <li><a href="#">فرانسوی</a></li>
+                                        <ul class="text-center">
+                                            {% comment %} <li><a href="#"><i class="icon-mail"></i>پیام ها</a></li> {% endcomment %}
+                                            <li><a href="#"><i class="icon-settings"></i>تنظیمات</a></li>
+                                            <li><a href="#"><i class="icon-log-out"></i>خروج</a>
+                                            </li>
+                                        </ul>
                                     </ul>
                                 </div>
+                            </li>
+                            <li>
+                                <a href="{% url 'crm:messages' %}"> <i class="icon-bell"></i><sup style="top:-0.6em; font-size:1.2em"><b class="text-danger">4</b></sup></a>
                             </li>
                         </ul>
                     </div>
@@ -79,9 +82,9 @@
                                             {% comment %} <li><a href="{% url 'crm:documents-list' %}">مدارک</a> </li> {% endcomment %}
                                         </ul>
                                     </li>
-                                    <li class="dropdown"><a href="index.html">مالی</a>
+                                    <li class="dropdown"><a href="#">مالی</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#">فاکتورها</a></li>
+                                            <li><a href="{% url 'crm:invoice-list' %}">فاکتورها</a></li>
                                             <li><a href="#">پرداخت‌ها</a></li>
                                         </ul>
                                     </li>
@@ -91,7 +94,7 @@
                                             <li><a href="{% url 'crm:request-add' %}">جدید</a></li>
                                         </ul>
                                     </li>
-                                    <li><a href="index.html">پیام‌ها</a>  </li>
+                                    <li><a href="{% url 'crm:messages' %}">پیام‌ها</a>  </li>
                                     <li><a href="{% url 'crm:help' %}">راهنما</a></li>
                                 </ul>
                             </nav>

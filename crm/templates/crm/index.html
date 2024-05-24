@@ -11,8 +11,8 @@
     <div class="container">
         {% for mes in mes %}
                         {% if forloop.last %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            این یک هشدار خطر است - آن را بررسی کنید!
+        <div class="alert alert-danger alert-dismissible fade show font-weight-bold" role="alert">
+            شما <b>{{ forloop.counter }}</b> پیغام خوانده نشده دارید!
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
         </div>
         {% endif %}
@@ -24,63 +24,79 @@
                     <h4 class="mb-0">حساب ها</h4>
                     {% for customer in customer %}
                         {% if forloop.last %}
-                            <p class="text-primary">شما {{ forloop.counter }} حساب فعال دارید</p>
+                            <p>شما {{ forloop.counter }} حساب ایجاد شده دارید</p>
                         {% endif %}
                     {% endfor %}
-                    <div class="row">
+                    <div class="row mt-5">
+                        {% if customer %}
                         {% for customer in customer%}
                         <div class="col-lg-6">
-                            <h5 class="">{{ customer.company }}</h5>
+                            <ul class="list-icon list-icon-caret list-icon-colored">
+                                <li class="text-info"><b>نام تجاری:</b> {{ customer.company }}</li>
                             {% if customer.state == "legal"%}
                                 {% if customer.ceoname %}
-                                    <p>نوع حساب: {{ customer.get_state_display }}</p>
-                                    <p>نام مدیرعامل: {{ customer.ceoname }}</p>
-                                    <p>شناسه ملی: {{ customer.ncode }}</p>
-                                    <p>شماره موبایل: {{ customer.mobile }}</p>
+                                    <li><b>نوع حساب:</b> {{ customer.get_state_display }}</li>
+                                    <li><b>نام مدیرعامل:</b> {{ customer.ceoname }}</li>
+                                    <li><b>شناسه ملی:</b> {{ customer.ncode }}</li>
+                                    <li><b>شماره موبایل:</b> {{ customer.mobile }}</li>
                                 {% endif %}
                             {% else %}
-                                <p>نوع حساب: {{ customer.get_state_display }}</p>
-                                <p>نام و نشان: {{ customer.firstname }} {{ customer.lastname }}</p>
-                                <p>کد ملی: {{ customer.code }}</p>
-                                <p>شماره موبایل: {{ customer.mobile }}</p>
+                                <li><b>نوع حساب:</b> {{ customer.get_state_display }}</li>
+                                <li><b>نام و نشان:</b> {{ customer.firstname }} {{ customer.lastname }}</li>
+                                <li><b>کد ملی:</b> {{ customer.code }}</li>
+                                <li><b>شماره موبایل:</b> {{ customer.mobile }}</li>
                             {% endif %}
+                        </ul>
 
                         </div>
                         {% endfor %}
+                        {% else %}
+                        <div class="col-lg-6">
+                            <h5><a href="{% url 'crm:customer-add' %}" class="text-info" >شما حساب فعال ندارید لطفاً حساب جدید ایجاد کنید >></a></h5>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <hr>
-                    <a href="#" class="text-theme">مشاهده حساب ها</a>
+                    <a href="{% url 'crm:customer-list' %}" class="text-theme">مشاهده حساب ها</a>
                 </div>
             </div>
         </div>
         <div class="grid-layout grid-3-columns" data-item="grid-item" data-margin="10">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
-                    <h4 class="mb-0">پیام‌ ها</h4>
+                    <h4 class="mb-0">پیغام‌ ها</h4>
                     {% for mes in mes %}
                         {% if forloop.last %}
-                            <p class="text-muted">شما {{ forloop.counter }} پیغام جدید دارید</p>
+                            <p class="text-danger">شما {{ forloop.counter }} پیغام جدید دارید</p>
                         {% endif %}
                     {% endfor %}
+                    {% if mes %}
                     {% for mes in mes %}
                     {% if forloop.counter < 5 %}
-                    <div class="notification-item notification-new">
-                        <div class="notification-meta">
-                            <a href="#">{{ mes.text|safe|truncatewords:8 }}</a>
-                            <span>{{ mes.created_date|to_jalali:'%Y/%m/%d' }}</span>
+                        <div class="notification-item notification-new">
+                            <div class="notification-meta">
+                                <a href="#">{{ mes.text|safe|truncatewords:8 }}</a>
+                                <span>{{ mes.created_date|to_jalali:'%Y/%m/%d' }}</span>
+                            </div>
                         </div>
-                    </div>
                     {% endif %}
                     {% endfor %}
+                    {% else %}
+                    <div>
+                        <p>شما پیغام جدید ندارید.</p>
+                    </div>
+                    {% endif %}
+
                     <hr>
-                    <a href="#" class="text-theme">مشاهده همه اعلان ها</a>
+                    <a href="{% url 'crm:messages' %}" class="text-theme">مشاهده همه پیغام ها</a>
                 </div>
             </div>
             <div class="grid-item">
 
                 <div class="widget widget-archive p-cb">
                     <h4 class="mb-0">فاکتورها</h4>
+                    {% if invoices %}
                     {% for invoice in invoices %}
                         {% if forloop.last %}
                         <p class="text-danger">شما {{ forloop.counter }} فاکتور پرداخت نشده دارید</p>
@@ -93,9 +109,11 @@
                         {% endif %}
                         {% endfor %}
                     </ul>
-
+                    {% else %}
+                        <p class="">شما فاکتوری برای پرداخت ندارید.</p>
+                    {% endif %}
                     <hr>
-                    <a href="#" class="text-theme">مشاهده همه فاکتورها</a>
+                    <a href="{% url 'crm:invoice-list' %}" class="text-theme">مشاهده همه فاکتورها</a>
                 </div>
 
             </div>

@@ -108,5 +108,5 @@ class InvoiceForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'checked':True}),
             'customer': forms.Select(attrs={'class':'form-control'}),
             'exhibition': forms.Select(attrs={'class':'form-control'}),
-            'description': forms.Textarea(attrs={'class':'form-control', 'rows':2}),
+            'description': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }

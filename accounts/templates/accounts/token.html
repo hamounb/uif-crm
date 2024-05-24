@@ -37,7 +37,7 @@
                                     {% if messages %}
                                         <ul class="messages">
                                             {% for message in messages %}
-                                            <li{% if message.extra_tags %} class="text-{{ message.extra_tags }}"{% endif %}>{{ message }}</li>
+                                            <li{% if message.tags == "error" %} class="text-danger"{% endif %}>{{ message }}</li>
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -48,7 +48,6 @@
                                         </p>
                                         {% endfor %}
                                     {% endif %}
-                                    <h5 class="text-danger">{{ message }}</h5>
                                 </div>
                                 <div class="col-lg-12 form-group">
                                     {{ form.code.label_tag }}

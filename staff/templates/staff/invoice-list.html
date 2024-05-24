@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست درخواست‌ها</h2>
+                        <h2>لیست فاکتورها</h2>
                         <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
                         <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
@@ -24,7 +24,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-3 m-2">
+                            <div class="form-group col-lg-3">
                                 <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
                             </div>
                             <div class="col-lg-12">
@@ -81,7 +81,6 @@
 {% endblock content %}
 {% block script %}
 
-<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
 <script>
     $(document).ready(function(){
       $("#myInput").on("keyup", function() {

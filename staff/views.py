@@ -11,7 +11,6 @@ from django.contrib import messages
 class Test(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['crm.add_customermodel', 'crm.add_requestmodel']
-    permission_denied_message = "hp"
 
     def get(self, request):
         return render(request, 'staff/test.html')
@@ -51,16 +50,15 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     obj.user_created = user
                     obj.save()
                     messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                    return redirect('staff:customer-change', id=obj.id)
+                    return redirect('staff:customer-change', cid=obj.id)
             else:
                 obj.ceoname = ''
                 obj.ncode = ''
-                obj.user = user
                 obj.user_modified = user
                 obj.user_created = user
                 obj.save()
                 messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                return redirect('staff:customer-change', id=obj.id)
+                return redirect('staff:customer-change', cid=obj.pk)
         return render(request, 'staff/customer-add.html', {'form':form})
     
 
@@ -149,6 +147,30 @@ class DocumentsDelView(PermissionRequiredMixin, views.View):
         file.file.delete(save=True)
         file.delete()
         messages.success(request, "مدرک انتخابی شما با موفقیت حذف شد.")
+        return redirect('staff:customer-change', cid=file.customer.pk)
+    
+
+class DocumentsAcceptView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, fid):
+        file = get_object_or_404(DocumentsModel, pk=fid)
+        file.state = DocumentsModel.STATE_ACCEPT
+        file.save()
+        messages.success(request, "مدرک انتخابی شما با موفقیت تایید شد.")
+        return redirect('staff:customer-change', cid=file.customer.pk)
+    
+
+class DocumentsDenyView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, fid):
+        file = get_object_or_404(DocumentsModel, pk=fid)
+        file.state = DocumentsModel.STATE_DENY
+        file.save()
+        messages.error(request, "مدرک انتخابی شما تایید نشد.", extra_tags="danger")
         return redirect('staff:customer-change', cid=file.customer.pk)
 
 
@@ -253,7 +275,8 @@ class InvoiceAddView(PermissionRequiredMixin, views.View):
             obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
             obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
             total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
-            obj.total_price = int(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
+            amount = int(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
+            obj.total_price = amount - int(amount * int(form.cleaned_data.get('discount')) / 100)
             obj.user_created = user
             obj.save()
             messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ثبت شد.')
@@ -268,3 +291,12 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
     def get(self, request):
         invoices = InvoiceModel.objects.all().order_by('-created_date')
         return render(request, 'staff/invoice-list.html', {'invoices':invoices})
+    
+
+class MessagesListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        mes = MessagesModel.objects.all().order_by('-created_date')
+        return render(request, 'staff/messages-list.html', {'mes':mes})

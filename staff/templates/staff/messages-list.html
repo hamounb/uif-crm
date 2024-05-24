@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-لیست مدارک مشارکت کنندگان
+پیغام ها
 {% endblock title %}
 
 {% block content %}
@@ -13,8 +13,8 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست مدارک</h2>
-                        <p>لطفا مدارک بارگذاری شده را با دقت بررسی کرده و وضعیت آنهارا مشخص کنید.</p>
+                        <h2>لیست پیغام ها</h2>
+                        <p></p>
                     </div>
                 </div>
             </div>
@@ -23,40 +23,39 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="form-group col-lg-2">
+                            <div class="form-group col-lg-3">
                                 <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
                             </div>
                             <div class="col-lg-12">
                                 <table id="datatable" class="table table-bordered table-hover" style="width:100%">
-                                    <thead class="thead-dark">
+                                    <thead>
                                         <tr>
                                             <th>کد</th>
+                                            <th>کاربر ایجاد</th>
+                                            <th>مشارکت کننده</th>
+                                            <th>تاریخ ایجاد</th>
+                                            <th>تاریخ آخرین تغییرات</th>
+                                            <th>متن پیغام</th>
                                             <th>وضعیت</th>
-                                            <th>کاربر</th>
-                                            <th>نام تجاری</th>
-                                            <th>مدارک</th>
-                                            <th>تاریخ</th>
                                             <th>اقدامات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for doc in doc %}
+                                        {% for mes in mes %}
                                         <tr>
-                                            <td>{{ doc.pk }}</td>
-                                            <td>
-                                                {% if doc.state == "wait" %}
-                                                <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
-                                                {% elif doc.state == "accept"  %}
-                                                <span class="badge badge-pill badge-success">قبول</span>
+                                            <td>{{ mes.pk }}</td>
+                                            <td>{{ mes.user_created.firstname }} {{ mes.user_created.lastname }}</td>
+                                            <td>{{ mes.customer.company }}</td>
+                                            <td>{{ mes.created_date|to_jalali:'%H:%M - %Y/%m/%d' }}</td>
+                                            <td>{{ mes.modified_date|to_jalali:'%H:%M - %Y/%m/%d' }}</td>
+                                            <td>{{ mes.text }}</td>
+                                            <td>{% if mes.is_active %}
+                                                <h4><span class="badge badge-pill badge-warning">ارسال شده</span></h4>
                                                 {% else %}
-                                                <span class="badge badge-pill badge-danger">رد شده</span>
+                                                <h4><span class="badge badge-pill badge-success">خوانده شده</span></h4>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ doc.user.username }}</td>
-                                            <td>{{ doc.customer.company }}</td>
-                                            <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></td>
-                                            <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                            <td><a href="{% url 'staff:customer-change' cid=doc.customer.pk %}">مشاهده</a></td>
+                                            <td><a href="#">مشاهده</a></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

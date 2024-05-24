@@ -71,7 +71,7 @@
                         <div class="container">
                             <nav>
                                 <ul>
-                                    <li><a href="index.html">خانه</a></li>
+                                    <li><a href="#">خانه</a></li>
                                     <li class="dropdown"><a href="#">مشارکت کنندگان</a>
                                         <ul class="dropdown-menu">
                                             <li><a href="{% url 'staff:customer-list' %}">لیست همه</a> </li>
@@ -79,22 +79,27 @@
                                             <li><a href="{% url 'staff:documents-list' %}">مدارک</a> </li>
                                         </ul>
                                     </li>
-                                    <li class="dropdown"><a href="index.html">مالی</a>
+                                    <li class="dropdown"><a href="#">مالی</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#">فاکتورها</a></li>
+                                            <li class="dropdown-submenu"><a href="#">فاکتورها</a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="{% url 'staff:invoice-list' %}">لیست همه</a></li>
+                                                    <li><a href="{% url 'staff:invoice-add' %}">جدید</a></li>
+                                                </ul>
+                                            </li>
                                             <li><a href="#">پرداخت‌ها</a></li>
                                         </ul>
                                     </li>
-                                    <li class="dropdown"><a href="index.html">نمایشگاه‌ها</a>
+                                    <li class="dropdown"><a href="#">نمایشگاه‌ها</a>
                                         <ul class="dropdown-menu">
                                             <li><a href="#">لیست همه</a></li>
                                             <li><a href="#">جدید</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="{% url 'staff:request-list' %}">درخواست‌ها</a></li>
-                                    <li class="dropdown"><a href="index.html">پیام‌ها</a>
+                                    <li class="dropdown"><a href="#">پیام‌ها</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#">لیست همه</a></li>
+                                            <li><a href="{% url 'staff:message-list' %}">لیست همه</a></li>
                                             <li><a href="#"> جدید</a></li>
                                         </ul>
                                     </li>

@@ -1,0 +1,61 @@
+{% extends "base-c.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+فاکتورها
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>فاکتورهای من</h2>
+                        <p>مشارکت کننده گرامی در صورت تسویه حساب، فاکتور نهایی برای شما صادر خواهد شد.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                {% if invoices %}
+                {% for invoice in invoices %}
+                <div class="card">
+                    <div class="card-body">
+                        <h4><b>شماره:</b> {{ invoice.pk }}</h4>
+                        <h5><b>نام تجاری:</b> {{ invoice.customer.company }} <span class="float-right"><b>تاریخ:</b> {{ invoice.created_date|to_jalali:"%Y/%m/%d" }}</span></h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>عنوان نمایشگاه</th>
+                                    <th>متراژ(متر مربع)</th>
+                                    <th>قیمت هرمترمربع</th>
+                                    <th>ارزش افزوده</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ invoice.exhibition.title }}</td>
+                                    <td>{{ invoice.area }}</td>
+                                    <td>{{ invoice.price }}</td>
+                                    <td>{{ invoice.value_added }} درصد</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td><b>کل:</b> {{ invoice.total_price }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p><b>توضیحات:</b> {{ invoice.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                none
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

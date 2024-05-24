@@ -23,13 +23,11 @@ class IndexView(LoginRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(user=user)
         mes = MessagesModel.objects.filter(Q(customer__user=user) & Q(is_active=True)).order_by('-created_date')
-        customer = CustomerModel.objects.filter(user=user)
         invoices = InvoiceModel.objects.filter(Q(user=user) & Q(is_active=True)).order_by('-created_date')
         context = {
             'mes':mes,
             'customer':customer,
             'invoices':invoices,
-            'customer':customer,
         }
         return render(request, 'crm/index.html', context)
     
@@ -38,7 +36,7 @@ class CustomerListView(LoginRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        customer = CustomerModel.objects.filter(user=user)
+        customer = CustomerModel.objects.filter(user=user).order_by('-created_date')
         if customer:
             return render(request, 'crm/customer-list.html', {'customer':customer})
         return redirect('crm:customer-add')
@@ -95,9 +93,9 @@ class CustomerChangeView(LoginRequiredMixin, views.View):
         form2 = DocumentForm()
         context = {
             'form':form,
-            'form2':form2,
             'customer':customer,
             'docs':docs,
+            'form2':form2,
         }
         return render(request, 'crm/customer-change.html', context)
     
@@ -105,21 +103,23 @@ class CustomerChangeView(LoginRequiredMixin, views.View):
         customer = get_object_or_404(CustomerModel, pk=id)
         user = get_object_or_404(User, pk=request.user.id)
         form = CustomerAddForm(request.POST, instance=customer)
+        docs = DocumentsModel.objects.filter(customer=customer)
         form2 = DocumentForm()
         context = {
             'form':form,
-            'form2':form2,
             'customer':customer,
+            'docs':docs,
+            'form2':form2,
         }
         if form.is_valid():
             obj = form.save(commit=False)
             if obj.state == "legal":
                 if not obj.ncode:
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای شناسه ملی باشد.", extra_tags='danger')
-                    return render(request, 'crm/customer-change.html', {'form':form, 'form2':form2})
+                    return render(request, 'crm/customer-change.html', context)
                 elif not obj.ceoname:
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
-                    return render(request, 'crm/customer-change.html', {'form':form, 'form2':form2})
+                    return render(request, 'crm/customer-change.html', context)
                 else:
                     obj.user_modified = user
                     obj.save()
@@ -132,20 +132,23 @@ class CustomerChangeView(LoginRequiredMixin, views.View):
                 obj.save()
                 messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
                 return redirect('crm:customer-change', id=customer.pk)
+        messages.error(request, f"ویرایش ثبت نشد، دوباره سعی کنید.", extra_tags='danger')
         return render(request, 'crm/customer-change.html', context)
     
 
 class DocumentsAddView(LoginRequiredMixin, views.View):
     login_url = 'accounts:signin'
 
-    def post(self, request, id):
+    def post(self, request, cid):
         user = get_object_or_404(User, pk=request.user.id)
-        customer = get_object_or_404(CustomerModel, pk=id)
         form = DocumentForm(request.POST, request.FILES)
+        customer = get_object_or_404(CustomerModel, pk=cid)
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.user = user
             obj.customer = customer
+            obj.user = user
+            obj.user_created = user
+            obj.user_modified = user
             obj.save()
             messages.success(request, f"مدرک شما با موفقیت بارگذاری شد!")
             return redirect('crm:customer-change', id=customer.pk)
@@ -157,11 +160,9 @@ class DocumentsView(LoginRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        customer = CustomerModel.objects.filter(user=user)
         docs = DocumentsModel.objects.filter(user=user).order_by('-created_date')
         form = DocumentForm()
         context = {
-            'customer':customer,
             'form':form,
             'docs':docs,
         }
@@ -183,35 +184,35 @@ class RequestsAddView(LoginRequiredMixin, views.View):
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        form = RequestsForm()
+        context = {
+            'customer':customer,
+            'form':form,
+        }
         if customer:
-            form = RequestsForm()
-            context = {
-                'customer':customer,
-                'form':form,
-            }
             return render(request, 'crm/requests-add.html', context)
-        messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
+        messages.error(request, 'کابر گرامی شما پروفایل کاربری فعال ندارید!', extra_tags='danger')
         return render(request, 'crm/requests-add.html', context)
     
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        form = RequestsForm(request.POST)
+        context = {
+            'customer':customer,
+            'form':form,
+        }
         if customer:
-            form = RequestsForm(request.POST)
-            context = {
-                'customer':customer,
-                'form':form,
-            }
             if form.is_valid():
                 w = RequestModel.objects.filter(Q(customer=form.cleaned_data['customer']) & Q(exhibition=form.cleaned_data['exhibition']) & Q(state=RequestModel.STATE_WAIT))
                 a = RequestModel.objects.filter(Q(customer=form.cleaned_data['customer']) & Q(exhibition=form.cleaned_data['exhibition']) & Q(state=RequestModel.STATE_ACCEPT))
                 if w:
-                    messages.error(request, f"مشارکت کننده {form.cleaned_data['customer']}"
-                                 f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} قبلا ثبت شده و در حال بررسی است.", extra_tags='danger')
+                    messages.warning(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                 f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} قبلا ثبت شده و در حال بررسی است.")
                     return render(request, 'crm/requests-add.html', context)
                 elif a:
-                    messages.error(request, f"مشارکت کننده {form.cleaned_data['customer']}"
-                                 f" با درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} موافقت شده است و امکان ثبت دوباره ندارد.", extra_tags='danger')
+                    messages.warning(request, f"مشارکت کننده {form.cleaned_data['customer']}"
+                                 f" قبلاً با درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} موافقت شده است و امکان ثبت دوباره ندارد.")
                     return render(request, 'crm/requests-add.html', context)
                 else:
                     obj = form.save(commit=False)
@@ -221,11 +222,35 @@ class RequestsAddView(LoginRequiredMixin, views.View):
                     obj.save()
                     messages.success(request, f"مشارکت کننده {form.cleaned_data['customer']}"
                                      f" درخواست شما برای نمایشگاه {form.cleaned_data['exhibition']} با متراژ {form.cleaned_data['area']} ثبت شد.")
-                    return render(request, 'crm/requests-add.html', context)
-            context = {
-                'customer':customer,
-                'form':form,
-            }
+                    return redirect('crm:request-list')
             return render(request, 'crm/requests-add.html', context)
         messages.error(request, 'کابر گرامی شما مشخصات کاربری فعال ندارید!', extra_tags='danger')
         return render(request, 'crm/requests-add.html', context)
+    
+
+class MessagesView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        mes = MessagesModel.objects.filter(customer__user=user).order_by('-created_date')
+        return render(request, 'crm/messages.html', {'mes':mes})
+    
+
+class MessageDoneView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request, mid):
+        mes = get_object_or_404(MessagesModel, pk=mid)
+        mes.is_active = False
+        mes.save()
+        return redirect('crm:messages')
+    
+
+class InvoiceListView(LoginRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        invoices = InvoiceModel.objects.filter(Q(user=user) & Q(is_active=True)).order_by('-created_date')
+        return render(request, 'crm/invoice-list.html', {'invoices':invoices})

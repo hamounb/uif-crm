@@ -1,1 +1,59 @@
-{{ form }}
+{% extends "base-c.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+مدرک ها
+{% endblock title %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2>مدارک من</h2>
+                <p>لطفا مدارک مورد نیاز جهت تایید و اعطاء مجوز به پروفایل شما برای رزرو غرفه در نمایشگاه‌ها را بارگذاری کنید.</p>
+                <p>برای اشخاص حقیقی تصویر کارت ملی و مجوزها(پروانه کسب، مجوزتولید یا کارگاه و...) الزامی است.</p>
+                <p>برای اشخاص حقوقی تصویر کارت ملی مدیرعامل و نماینده حقوقی و مجوزها الزامی است.</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <form method="post" action="{% url 'crm:documents-add' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group col-lg-6">
+                                    {{ form.customer.label_tag }}
+                                    {{ form.customer }}
+                                    {% if form.label_tag.errors %}
+                                        {% for error in form.label_tag.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-lg-6">
+                                    {{ form.file.label_tag }}
+                                    {{ form.file }}
+                                    {% if form.label_tag.errors %}
+                                        {% for error in form.label_tag.errors %}
+                                            <p class="text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <input type="submit" class="btn btn-success" value="ذخیره اطلاعات">
+                        </form>
+                    </div>
+                    <div class="col-lg-6">
+                        {% for doc in docs %}
+                        <h5><a href="{{ doc.file.url}}">{{ doc.file.name }}</a><span class="float-right">{{ doc.get_state_display }}</span></h5>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -22,9 +22,10 @@ def is_ncode(value):
 def is_postal(value):
     if len(value) != 10 or not str(value).isnumeric():
         raise ValidationError('کد پستی صحیح نمی‌باشد!')
-    
+
+
 class CustomerAddForm(forms.ModelForm):
-    ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
+    ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی شرکت/سازمان", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
     fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
@@ -58,6 +59,7 @@ class CustomerAddForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }
 
+
 class DocumentForm(forms.ModelForm):
 
     class Meta:
@@ -66,8 +68,9 @@ class DocumentForm(forms.ModelForm):
             'file',
         )
         widgets = {
-            'file': forms.FileInput(attrs={'value':'dd'})
+            'file': forms.FileInput(attrs={'value':'dd'}),
         }
+
 
 class RequestsForm(forms.ModelForm):
 

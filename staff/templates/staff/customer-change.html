@@ -231,7 +231,11 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                            <td><a href="{% url 'staff:documents-del' fid=doc.pk %}" class="btn btn-danger btn-xs">X</a></td>
+                                            <td>
+                                                <a class="mr-2" href="{% url 'staff:documents-accept' fid=doc.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check"></i></a>
+                                                <a class="mr-2" href="{% url 'staff:documents-deny' fid=doc.pk %}" data-toggle="tooltip" data-original-title="عدم تایید"><i class="icon-x-square"></i></a>
+                                                <a class="mr-2" href="{% url 'staff:documents-del' fid=doc.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2"></i></a>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
