@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% block title %}
+خانه | مدیریت پورتال
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container">
+        <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
+            <div class="grid-item">
+                <div class="widget widget-notification p-cb">
+                    <h3>لیست مشارکت کنندگان</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>نوع حساب</th>
+                                    <th>نام تجاری</th>
+                                    <th>کدملی/شناسه‌ملی</th>
+                                    <th>شماره موبایل</th>
+                                    <th>تاریخ ایجاد</th>
+                                    <th>وضعیت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for customer in customer %}
+                            {% if forloop.counter < 6 %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        {% if customer.state == "real" %}
+                                        <h4><span class="badge badge-light">حقیقی</span></h4>
+                                        {% else %}
+                                        <h4><span class="badge badge-info">حقوقی</span></h4>
+                                        {% endif %}
+                                    </td>
+                                    <td style="color:blueviolet">{{ customer.company }}</td>
+                                    <td>{{ customer.code }}</td>
+                                    <td>{{ customer.mobile }}</td>
+                                    <td>{{ customer.created_date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td>
+                                        {% if customer.is_active %}
+                                        فعال
+                                        {% else %}
+                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="10">
+            <div class="grid-item">
+                <div class="widget widget-notification p-cb">
+                    <h3>لیست نمایشگاه‌ها</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>عنوان نمایشگاه</th>
+                                    <th>قیمت</th>
+                                    <th>تاریخ برگزاری</th>
+                                    <th>وضعیت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for exhibition in exhibition %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td style="color:blueviolet">{{ exhibition.title }}</td>
+                                    <td>{{ exhibition.price }}</td>
+                                    <td>{{ exhibition.date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td>
+                                        {% if exhibition.is_active %}
+                                        <h4><span class="badge badge-success"> فعال</span></h4>
+                                        {% else %}
+                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="widget widget-notification p-cb">
+                    <h3>لیست نمایشگاه‌ها</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>عنوان نمایشگاه</th>
+                                    <th>قیمت</th>
+                                    <th>تاریخ برگزاری</th>
+                                    <th>وضعیت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for exhibition in exhibition %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td style="color:blueviolet">{{ exhibition.title }}</td>
+                                    <td>{{ exhibition.price }}</td>
+                                    <td>{{ exhibition.date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td>
+                                        {% if exhibition.is_active %}
+                                        <h4><span class="badge badge-success"> فعال</span></h4>
+                                        {% else %}
+                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -16,6 +16,22 @@ class Test(PermissionRequiredMixin, views.View):
         return render(request, 'staff/test.html')
     
 
+class HomeView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
+        req = RequestModel.objects.all().order_by('-created_date')[:5]
+        exhibition = ExhibitionModel.objects.filter(is_active=True)
+        context = {
+            'customer':customer,
+            'exhibition':exhibition,
+            'req':req,
+        }
+        return render(request, 'staff/home.html', context)
+    
+
 class CustomerListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = []

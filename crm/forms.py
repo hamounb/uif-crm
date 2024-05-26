@@ -73,6 +73,12 @@ class DocumentForm(forms.ModelForm):
 
 
 class RequestsForm(forms.ModelForm):
+    exhibition = forms.ModelChoiceField(
+        queryset = ExhibitionModel.objects.filter(is_active=True),
+        widget =forms.Select(attrs={'class':'form-control'}),
+        required=True,
+        label = 'عنوان نمایشگاه'
+    )
 
     class Meta:
         model = RequestModel
@@ -84,7 +90,6 @@ class RequestsForm(forms.ModelForm):
         )
         widgets = {
             'customer': forms.Select(attrs={'class':'form-control', 'required':True}),
-            'exhibition': forms.Select(attrs={'class':'form-control', 'required':True}),
             'area': forms.NumberInput(attrs={'class':'form-control'}),
             'rules': forms.CheckboxInput(attrs={'required':True})
         }
