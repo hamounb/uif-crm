@@ -34,7 +34,7 @@ def is_positive(value):
         
     
 class CustomerAddForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control'}), required=True, label='کاربر')
+    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control'}), label='کاربر')
     code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
     ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
@@ -64,7 +64,7 @@ class CustomerAddForm(forms.ModelForm):
                   )
         widgets = {
             'state': forms.Select(attrs={'class':'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}),
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right', "checked":True}),
             'firstname': forms.TextInput(attrs={'class':'form-control'}),
             'lastname': forms.TextInput(attrs={'class':'form-control'}),
             'fathername': forms.TextInput(attrs={'class':'form-control'}),

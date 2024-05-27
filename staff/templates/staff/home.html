@@ -57,37 +57,52 @@
                     <div><a class="btn" href="#">مشاهده همه</a></div>
                 </div>
             </div>
-        </div>
-        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="10">
+            {% if req %}
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
-                    <h3>لیست نمایشگاه‌ها</h3>
+                    <h3>لیست درخواست‌ها</h3>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
+                                    <th>نام تجاری</th>
+                                    <th>کدملی/شناسه‌ملی</th>
                                     <th>عنوان نمایشگاه</th>
-                                    <th>قیمت</th>
-                                    <th>تاریخ برگزاری</th>
+                                    <th>متراژ</th>
+                                    <th>قوانین</th>
+                                    <th>تاریخ ایجاد</th>
                                     <th>وضعیت</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for exhibition in exhibition %}
+                            {% for req in req %}
+                            {% if forloop.counter < 6 %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td style="color:blueviolet">{{ exhibition.title }}</td>
-                                    <td>{{ exhibition.price }}</td>
-                                    <td>{{ exhibition.date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td style="color:blueviolet">{{ req.customer.company }}</td>
+                                    <td>{{ req.customer.code }}</td>
+                                    <td>{{ req.exhibition.title }}</td>
+                                    <td>{{ req.area }}</td>
                                     <td>
-                                        {% if exhibition.is_active %}
-                                        <h4><span class="badge badge-success"> فعال</span></h4>
+                                        {% if req.rules %}
+                                        <i class="icon-check-square"></i>
                                         {% else %}
-                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
+                                        <i class="icon-x"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ req.created_date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td>
+                                        {% if req.state == "wait" %}
+                                        <h4><span class="badge badge-warning">در انتظار بررسی</span></h4>
+                                        {% elif req.state == "accept" %}
+                                        <h4><span class="badge badge-success">قبول</span></h4>
+                                        {% else %}
+                                        <h4><span class="badge badge-danger">رد شده</span></h4>
                                         {% endif %}
                                     </td>
                                 </tr>
+                            {% endif %}
                             {% endfor %}
                             </tbody>
                         </table>
@@ -96,6 +111,9 @@
                     <div><a class="btn" href="#">مشاهده همه</a></div>
                 </div>
             </div>
+            {% endif %}
+        </div>
+        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="10">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست نمایشگاه‌ها</h3>

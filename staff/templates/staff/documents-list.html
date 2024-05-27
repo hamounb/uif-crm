@@ -27,40 +27,42 @@
                                 <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
                             </div>
                             <div class="col-lg-12">
-                                <table id="datatable" class="table table-bordered table-hover" style="width:100%">
-                                    <thead class="thead-dark">
-                                        <tr>
-                                            <th>کد</th>
-                                            <th>وضعیت</th>
-                                            <th>کاربر</th>
-                                            <th>نام تجاری</th>
-                                            <th>مدارک</th>
-                                            <th>تاریخ</th>
-                                            <th>اقدامات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for doc in doc %}
-                                        <tr>
-                                            <td>{{ doc.pk }}</td>
-                                            <td>
-                                                {% if doc.state == "wait" %}
-                                                <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
-                                                {% elif doc.state == "accept"  %}
-                                                <span class="badge badge-pill badge-success">قبول</span>
-                                                {% else %}
-                                                <span class="badge badge-pill badge-danger">رد شده</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ doc.user.username }}</td>
-                                            <td>{{ doc.customer.company }}</td>
-                                            <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></td>
-                                            <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                            <td><a href="{% url 'staff:customer-change' cid=doc.customer.pk %}">مشاهده</a></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                <div class="table-responsive" style="height:500px;overflow:auto;">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>کد</th>
+                                                <th>وضعیت</th>
+                                                <th>کاربر</th>
+                                                <th>نام تجاری</th>
+                                                <th>مدارک</th>
+                                                <th>تاریخ</th>
+                                                <th>اقدامات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for doc in doc %}
+                                            <tr>
+                                                <td>{{ doc.pk }}</td>
+                                                <td>
+                                                    {% if doc.state == "wait" %}
+                                                    <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
+                                                    {% elif doc.state == "accept"  %}
+                                                    <span class="badge badge-pill badge-success">قبول</span>
+                                                    {% else %}
+                                                    <span class="badge badge-pill badge-danger">رد شده</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ doc.user.username }}</td>
+                                                <td style="color:blueviolet">{{ doc.customer.company }}</td>
+                                                <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></td>
+                                                <td>{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td><a href="{% url 'staff:customer-change' cid=doc.customer.pk %}">مشاهده</a></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -72,7 +74,6 @@
 {% endblock content %}
 {% block script %}
 
-<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
 <script>
     $(document).ready(function(){
       $("#myInput").on("keyup", function() {

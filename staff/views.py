@@ -22,7 +22,7 @@ class HomeView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
-        req = RequestModel.objects.all().order_by('-created_date')[:5]
+        req = RequestModel.objects.filter(state=RequestModel.STATE_WAIT).order_by('-created_date')
         exhibition = ExhibitionModel.objects.filter(is_active=True)
         context = {
             'customer':customer,
@@ -62,19 +62,43 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
                     return render(request, 'staff/customer-add.html', {'form':form})
                 else:
+                    if obj.user:
+                        if str(obj.user) == str(obj.code):
+                            obj.user_modified = user
+                            obj.user_created = user
+                            obj.save()
+                            messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                            return redirect('staff:customer-change', cid=obj.id)
+                        else:
+                            messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
+                            return render(request, 'staff/customer-add.html', {'form':form})
+                    else:
+                        obj.user_modified = user
+                        obj.user_created = user
+                        obj.save()
+                        messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                        return redirect('staff:customer-change', cid=obj.id)
+            else:
+                if obj.user:
+                    if str(obj.user) == str(obj.code):
+                        obj.ceoname = ''
+                        obj.ncode = ''
+                        obj.user_modified = user
+                        obj.user_created = user
+                        obj.save()
+                        messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                        return redirect('staff:customer-change', cid=obj.pk)
+                    else:
+                        messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
+                        return render(request, 'staff/customer-add.html', {'form':form})
+                else:
+                    obj.ceoname = ''
+                    obj.ncode = ''
                     obj.user_modified = user
                     obj.user_created = user
                     obj.save()
-                    messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                    return redirect('staff:customer-change', cid=obj.id)
-            else:
-                obj.ceoname = ''
-                obj.ncode = ''
-                obj.user_modified = user
-                obj.user_created = user
-                obj.save()
-                messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                return redirect('staff:customer-change', cid=obj.pk)
+                    messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                    return redirect('staff:customer-change', cid=obj.pk)
         return render(request, 'staff/customer-add.html', {'form':form})
     
 
@@ -110,22 +134,44 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
             if obj.state == "legal":
                 if not obj.ncode:
                     messages.error(request, f"مشارکت کننده با نوع حقوقی باید دارای شناسه ملی باشد.", extra_tags='danger')
-                    return render(request, 'staff/customer-change.html', {'form':form, 'form2':form2})
+                    return render(request, 'staff/customer-change.html', context)
                 elif not obj.ceoname:
                     messages.error(request, f"مشارکت کننده با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
-                    return render(request, 'staff/customer-change.html', {'form':form, 'form2':form2})
+                    return render(request, 'staff/customer-change.html', context)
                 else:
+                    if obj.user:
+                        if str(obj.user) == str(obj.code):
+                            obj.user_modified = user
+                            obj.save()
+                            messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
+                            return render(request, 'staff/customer-change.html', context)
+                        else:
+                            messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
+                            return render(request, 'staff/customer-change.html', context)
+                    else:
+                        obj.user_modified = user
+                        obj.save()
+                        messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
+                        return render(request, 'staff/customer-change.html', context)
+            else:
+                if obj.user:
+                    if str(obj.user) == str(obj.code):
+                        obj.ceoname = ''
+                        obj.ncode = ''
+                        obj.user_modified = user
+                        obj.save()
+                        messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
+                        return render(request, 'staff/customer-change.html', context)
+                    else:
+                        messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
+                        return render(request, 'staff/customer-change.html', context)
+                else:
+                    obj.ceoname = ''
+                    obj.ncode = ''
                     obj.user_modified = user
                     obj.save()
                     messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                    return redirect('staff:customer-change', id=customer.pk)
-            else:
-                obj.ceoname = ''
-                obj.ncode = ''
-                obj.user_modified = user
-                obj.save()
-                messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                return redirect('staff:customer-change', cid=customer.pk)
+                    return render(request, 'staff/customer-change.html', context)
         return render(request, 'staff/customer-change.html', context)
     
 
