@@ -338,7 +338,7 @@ class InvoiceAddView(PermissionRequiredMixin, views.View):
             obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
             total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
             amount = int(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
-            obj.total_price = amount - int(amount * int(form.cleaned_data.get('discount')) / 100)
+            obj.total_price = float(amount - int(amount * int(form.cleaned_data.get('discount')) / 100))
             obj.user_created = user
             obj.save()
             messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ثبت شد.')

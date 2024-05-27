@@ -32,6 +32,13 @@ def is_positive(value):
         if int(value) < 1:
             raise ValidationError('عدد باید بزرگتر از صفر باشد!')
         
+def is_discount(value):
+    if not str(value).isnumeric():
+        raise ValidationError('لطفاً فقط عدد وارد کنید!')
+    if str(value).isnumeric():
+        if int(value) < 0:
+            raise ValidationError('کمترین مقدار می‌تواند عدد صفر باشد!')
+        
     
 class CustomerAddForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control'}), label='کاربر')
@@ -91,7 +98,7 @@ class RequestAcceptForm(forms.Form):
 
 class InvoiceForm(forms.ModelForm):
     area = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="متراژ", validators=[is_positive])
-    discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=False)
+    discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=True, validators=[is_discount], empty_value="0")
 
 
     class Meta:
