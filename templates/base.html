@@ -92,8 +92,8 @@
                                     </li>
                                     <li class="dropdown"><a href="#">نمایشگاه‌ها</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#">لیست همه</a></li>
-                                            <li><a href="#">جدید</a></li>
+                                            <li><a href="{% url 'staff:exhibition-list' %}">لیست همه</a></li>
+                                            <li><a href="{% url 'staff:exhibition-add' %}">جدید</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="{% url 'staff:request-list' %}">درخواست‌ها</a></li>
