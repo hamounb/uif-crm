@@ -2,8 +2,8 @@ from django import forms
 from .models import *
 from crm.models import *
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
-from django.db.models import Q
+from jalali_date.fields import JalaliDateField
+from jalali_date.widgets import AdminJalaliDateWidget
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
@@ -18,7 +18,7 @@ def is_phone(value):
         raise ValidationError('شماره تلفن صحیح نمی‌باشد!')
     
 def is_ncode(value):
-    if len(value) != 10 or not str(value).isnumeric():
+    if len(value) != 11 or not str(value).isnumeric():
         raise ValidationError("شناسه ملی صحیح نمی‌باشد.")
     
 def is_postal(value):
@@ -41,9 +41,8 @@ def is_discount(value):
         
     
 class CustomerAddForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=False), widget=forms.Select(attrs={'class':'form-control'}), label='کاربر')
     code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
-    ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
+    ncode = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
     mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
     fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
@@ -52,7 +51,6 @@ class CustomerAddForm(forms.ModelForm):
     class Meta:
         model = CustomerModel
         fields = (
-                  'user',
                   'state',
                   'is_active',
                   'firstname',
@@ -80,6 +78,10 @@ class CustomerAddForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class':'form-control'}),
             'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }
+
+
+class CustomerChangeForm(CustomerAddForm):
+    code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control', 'hidden':True}), validators=[is_code])
 
 
 class DocumentForm(forms.Form):
@@ -117,3 +119,31 @@ class InvoiceForm(forms.ModelForm):
             'exhibition': forms.Select(attrs={'class':'form-control'}),
             'description': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
         }
+
+
+class ExhibitionForm(forms.ModelForm):
+
+    class Meta:
+        model = ExhibitionModel
+        fields = (
+            'is_active',
+            'sid',
+            'title',
+            'price',
+            'value_added',
+            'date',
+        )
+        widgets = {
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'checked':True}),
+            'sid': forms.TextInput(attrs={'class':'form-control'}),
+            'title': forms.TextInput(attrs={'class':'form-control'}),
+            'price': forms.TextInput(attrs={'class':'form-control'}),
+            'value_added': forms.TextInput(attrs={'class':'form-control'}),
+            'date': forms.TextInput(attrs={'class':'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ExhibitionForm, self).__init__(*args, **kwargs)
+        self.fields['date'] = JalaliDateField(label="تاریخ برگزاری", # date format is  "yyyy-mm-dd"
+            widget=AdminJalaliDateWidget() # optional, to use default datepicker
+        )

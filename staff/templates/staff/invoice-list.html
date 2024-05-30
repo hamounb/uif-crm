@@ -13,10 +13,10 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" data-bg-image="{% static 'images/invoices.png' %}">
                         <h2>لیست فاکتورها</h2>
-                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
-                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                        <p>فقط فاکتورهای فعال قابل پرداخت و تسویه حساب می‌باشند و فاکتورهای منقضی شده به هیچ عنوان قابل پرداخت نیستند!</p>
+                        <p class="text-danger">فاکتورهای منقضی شده فقط با اجازه مدیر قابلیت فعال شدن دارند!</p>
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                                                                 -----
                                                                 {% endif %}
                                                             </td>
-                                                            <td><a href="#">مشاهده</a></td>
+                                                            <td><a href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a></td>
                                                         </tr>
                                                         {% endif %}
                                                         {% endfor %}
@@ -131,7 +131,7 @@
                                                                 -----
                                                                 {% endif %}
                                                             </td>
-                                                            <td><a href="#">مشاهده</a></td>
+                                                            <td><a href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a></td>
                                                         </tr>
                                                         {% endif %}
                                                         {% endfor %}

@@ -62,36 +62,36 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
                     return render(request, 'staff/customer-add.html', {'form':form})
                 else:
-                    if obj.user:
-                        if str(obj.user) == str(obj.code):
-                            obj.user_modified = user
-                            obj.user_created = user
-                            obj.save()
-                            messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                            return redirect('staff:customer-change', cid=obj.id)
-                        else:
-                            messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
-                            return render(request, 'staff/customer-add.html', {'form':form})
-                    else:
+                    code = form.cleaned_data.get('code')
+                    mobile = form.cleaned_data.get('mobile')
+                    try:
+                        cus = User.objects.get(username=code)
+                    except User.DoesNotExist:
+                        new = User(username=code)
+                        new.set_password(mobile)
+                        new.save()
+                        obj.user = new
                         obj.user_modified = user
                         obj.user_created = user
                         obj.save()
                         messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
                         return redirect('staff:customer-change', cid=obj.id)
+                    obj.user = cus
+                    obj.user_modified = user
+                    obj.user_created = user
+                    obj.save()
+                    messages.success(request, f"مشتری حقوقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                    return redirect('staff:customer-change', cid=obj.id)
             else:
-                if obj.user:
-                    if str(obj.user) == str(obj.code):
-                        obj.ceoname = ''
-                        obj.ncode = ''
-                        obj.user_modified = user
-                        obj.user_created = user
-                        obj.save()
-                        messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
-                        return redirect('staff:customer-change', cid=obj.pk)
-                    else:
-                        messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
-                        return render(request, 'staff/customer-add.html', {'form':form})
-                else:
+                code = form.cleaned_data.get('code')
+                mobile = form.cleaned_data.get('mobile')
+                try:
+                    cus = User.objects.get(username=code)
+                except User.DoesNotExist:
+                    new = User(username=code)
+                    new.set_password(mobile)
+                    new.save()
+                    obj.user = new
                     obj.ceoname = ''
                     obj.ncode = ''
                     obj.user_modified = user
@@ -99,6 +99,14 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     obj.save()
                     messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
                     return redirect('staff:customer-change', cid=obj.pk)
+                obj.user = cus
+                obj.ceoname = ''
+                obj.ncode = ''
+                obj.user_modified = user
+                obj.user_created = user
+                obj.save()
+                messages.success(request, f"مشتری حقیقی با نام تجاری {obj.company} با موفقیت ثبت شد.")
+                return redirect('staff:customer-change', cid=obj.pk)
         return render(request, 'staff/customer-add.html', {'form':form})
     
 
@@ -108,7 +116,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
 
     def get(self, request, cid):
         customer = get_object_or_404(CustomerModel, pk=cid)
-        form = CustomerAddForm(instance=customer)
+        form = CustomerChangeForm(instance=customer)
         docs = DocumentsModel.objects.filter(customer=customer).order_by('-created_date')
         form2 = DocumentForm()
         context = {
@@ -122,7 +130,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
     def post(self, request, cid):
         customer = get_object_or_404(CustomerModel, pk=cid)
         user = get_object_or_404(User, pk=request.user.id)
-        form = CustomerAddForm(request.POST, instance=customer)
+        form = CustomerChangeForm(request.POST, instance=customer)
         form2 = DocumentForm()
         context = {
             'form':form,
@@ -134,44 +142,22 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
             if obj.state == "legal":
                 if not obj.ncode:
                     messages.error(request, f"مشارکت کننده با نوع حقوقی باید دارای شناسه ملی باشد.", extra_tags='danger')
-                    return render(request, 'staff/customer-change.html', context)
+                    return redirect('staff:customer-change', cid=customer.pk)
                 elif not obj.ceoname:
                     messages.error(request, f"مشارکت کننده با نوع حقوقی باید دارای نام مدیرعامل باشد.", extra_tags='danger')
-                    return render(request, 'staff/customer-change.html', context)
+                    return redirect('staff:customer-change', cid=customer.pk)
                 else:
-                    if obj.user:
-                        if str(obj.user) == str(obj.code):
-                            obj.user_modified = user
-                            obj.save()
-                            messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                            return render(request, 'staff/customer-change.html', context)
-                        else:
-                            messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
-                            return render(request, 'staff/customer-change.html', context)
-                    else:
-                        obj.user_modified = user
-                        obj.save()
-                        messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                        return render(request, 'staff/customer-change.html', context)
-            else:
-                if obj.user:
-                    if str(obj.user) == str(obj.code):
-                        obj.ceoname = ''
-                        obj.ncode = ''
-                        obj.user_modified = user
-                        obj.save()
-                        messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
-                        return render(request, 'staff/customer-change.html', context)
-                    else:
-                        messages.error(request, f"باید مقدار کدملی و کاربر یکی باشد.", extra_tags="danger")
-                        return render(request, 'staff/customer-change.html', context)
-                else:
-                    obj.ceoname = ''
-                    obj.ncode = ''
                     obj.user_modified = user
                     obj.save()
                     messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
                     return render(request, 'staff/customer-change.html', context)
+            else:
+                obj.ceoname = ''
+                obj.ncode = ''
+                obj.user_modified = user
+                obj.save()
+                messages.success(request, f"اطلاعات {obj.company} بروزرسانی شد.")
+                return render(request, 'staff/customer-change.html', context)
         return render(request, 'staff/customer-change.html', context)
     
 
@@ -208,8 +194,9 @@ class DocumentsDelView(PermissionRequiredMixin, views.View):
         file = get_object_or_404(DocumentsModel, pk=fid)
         file.file.delete(save=True)
         file.delete()
+        ref = request.META.get('HTTP_REFERER')
         messages.success(request, "مدرک انتخابی شما با موفقیت حذف شد.")
-        return redirect('staff:customer-change', cid=file.customer.pk)
+        return redirect(ref)
     
 
 class DocumentsAcceptView(PermissionRequiredMixin, views.View):
@@ -220,8 +207,9 @@ class DocumentsAcceptView(PermissionRequiredMixin, views.View):
         file = get_object_or_404(DocumentsModel, pk=fid)
         file.state = DocumentsModel.STATE_ACCEPT
         file.save()
-        messages.success(request, "مدرک انتخابی شما با موفقیت تایید شد.")
-        return redirect('staff:customer-change', cid=file.customer.pk)
+        ref = request.META.get('HTTP_REFERER')
+        messages.success(request, f"مدرک مشارکت کننده با نام تجاری {file.customer.company} با موفقیت تایید شد.")
+        return redirect(ref)
     
 
 class DocumentsDenyView(PermissionRequiredMixin, views.View):
@@ -232,8 +220,9 @@ class DocumentsDenyView(PermissionRequiredMixin, views.View):
         file = get_object_or_404(DocumentsModel, pk=fid)
         file.state = DocumentsModel.STATE_DENY
         file.save()
-        messages.error(request, "مدرک انتخابی شما تایید نشد.", extra_tags="danger")
-        return redirect('staff:customer-change', cid=file.customer.pk)
+        ref = request.META.get('HTTP_REFERER')
+        messages.warning(request, f"مدرک مشارکت کننده با نام تجاری {file.customer.company} به حالت تعلیق تغییر یافت!")
+        return redirect(ref)
 
 
 
@@ -354,6 +343,55 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
         invoices = InvoiceModel.objects.all().order_by('-created_date')
         return render(request, 'staff/invoice-list.html', {'invoices':invoices})
     
+
+class InvoiceDetailsView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        return render(request, 'staff/invoice-details.html', {'invoice':invoice})
+    
+
+class ExhibitionAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        form = ExhibitionForm()
+        return render(request, 'staff/exhibition-add.html', {'form':form})
+    
+    def post(self, request):
+        form = ExhibitionForm(request.POST)
+        user = get_object_or_404(User, pk=request.user.id)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user_created = user
+            obj.user_modified = user
+            obj.price = float(form.cleaned_data.get('price'))
+            obj.save()
+            messages.success(request, f"عنوان جدید {obj.title} با موفقیت ثبت شد.")
+            return redirect('staff:exhibition-add')
+        return render(request, 'staff/exhibition-add.html', {'form':form})
+    
+
+class ExhibitionListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request):
+        exh = ExhibitionModel.objects.all().order_by('-created_date')
+        return render(request, 'staff/exhibition-list.html', {'exh':exh})
+    
+
+class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, eid):
+        cus = InvoiceModel.objects.filter(Q(is_active=True) & Q(exhibition=eid))
+        return render(request, 'staff/exhibition-details.html', {'cus':cus})
+
 
 class MessagesListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
