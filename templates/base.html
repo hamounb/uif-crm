@@ -71,7 +71,7 @@
                         <div class="container">
                             <nav>
                                 <ul>
-                                    <li><a href="#">خانه</a></li>
+                                    <li><a href="{% url 'staff:home' %}">خانه</a></li>
                                     <li class="dropdown"><a href="#">مشارکت کنندگان</a>
                                         <ul class="dropdown-menu">
                                             <li><a href="{% url 'staff:customer-list' %}">لیست همه</a> </li>
@@ -97,12 +97,7 @@
                                         </ul>
                                     </li>
                                     <li><a href="{% url 'staff:request-list' %}">درخواست‌ها</a></li>
-                                    <li class="dropdown"><a href="#">پیام‌ها</a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="{% url 'staff:message-list' %}">لیست همه</a></li>
-                                            <li><a href="#"> جدید</a></li>
-                                        </ul>
-                                    </li>
+                                    <li><a href="{% url 'staff:message-list' %}">پیام‌ها</a> </li>
                                 </ul>
                             </nav>
                         </div>

@@ -43,7 +43,7 @@
                                                 <th>نام و نشان</th>
                                                 <th>کدملی</th>
                                                 <th>موبایل</th>
-                                                <th>تاریخ</th>
+                                                <th>تاریخ ایجاد</th>
                                                 <th>اقدامات</th>
                                             </tr>
                                         </thead>
@@ -65,8 +65,16 @@
                                                 </td>
                                                 <td style="color:blueviolet"><b>{{ customer.company }}</b></td>
                                                 <td class="text-info">{{ customer.firstname }} {{ customer.lastname}}</td>
-                                                <td>{{ customer.code }}</td>
-                                                <td>{{ customer.mobile }}</td>
+                                                {% if customer.state == "legal" %}
+                                                <td class="text-primary" data-toggle="tooltip" data-placement="top" title="شناسه‌ملی: {{ customer.ncode }}">
+                                                    {{ customer.code }}
+                                                </td>
+                                                {% else %}
+                                                <td class="text-primary">
+                                                    {{ customer.code }}
+                                                </td>
+                                                {% endif %}
+                                                <td class="text-primary">{{ customer.mobile }}</td>
                                                 <td>{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td><a href="{% url 'staff:customer-change' cid=customer.pk %}">مشاهده</a></td>
                                             </tr>

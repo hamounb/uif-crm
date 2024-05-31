@@ -37,8 +37,8 @@
                                         {% endif %}
                                     </td>
                                     <td style="color:blueviolet">{{ customer.company }}</td>
-                                    <td>{{ customer.code }}</td>
-                                    <td>{{ customer.mobile }}</td>
+                                    <td class="text-primary">{{ customer.code }}</td>
+                                    <td class="text-primary">{{ customer.mobile }}</td>
                                     <td>{{ customer.created_date|to_jalali:"%Y/%m/%d" }}</td>
                                     <td>
                                         {% if customer.is_active %}
@@ -54,7 +54,7 @@
                         </table>
                     </div>
                     <hr>
-                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                    <div><a class="btn" href="{% url 'staff:customer-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
             {% if req %}

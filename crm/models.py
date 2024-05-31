@@ -140,11 +140,32 @@ class MessagesModel(BaseModel):
     text = models.TextField(verbose_name='متن پیام')
 
     def __str__(self):
-        return f"{self.customer.company} - ({self.customer.firstname} {self.customer.lastname})"
+        return f"{self.pk}.{self.customer.company} - ({self.customer.firstname} {self.customer.lastname})"
     
     class Meta:
         verbose_name = 'پیغام'
         verbose_name_plural = 'پیغام‌ها'
+
+
+class MessageChangeModel(models.Model):
+    message = models.ForeignKey(MessagesModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="پیغام اصلی")
+    text = models.TextField(verbose_name='متن پیام')
+    user_modified = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name='%(class)s_user_modified',
+        null=True,
+        blank=True,
+        verbose_name='کاربر ویرایش'
+        )
+    modified_date = models.DateTimeField(verbose_name='تاریخ تغییرات')
+
+    def __str__(self):
+        return f"{self.message.pk}.{self.message.customer.company} - ({self.message.customer.firstname} {self.message.customer.lastname})"
+    
+    class Meta:
+        verbose_name = 'پیغام ویرایش شده'
+        verbose_name_plural = 'پیغام‌های ویرایشی'
 
 
 class InvoiceModel(BaseModel):

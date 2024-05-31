@@ -77,6 +77,19 @@ class MessagesAdmin(admin.ModelAdmin):
             obj.user_modified = request.user
         return super().save_model(request, obj, form, change)
 
+
+@admin.register(MessageChangeModel)
+class MessageChangeAdmin(admin.ModelAdmin):
+    readonly_fields = ("user_modified", "modified_date")
+    search_fields = ("message__customer",)
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.user_modified = request.user
+        else:
+            obj.user_modified = request.user
+        return super().save_model(request, obj, form, change)
+
     
 @admin.register(InvoiceModel)
 class InvoiceAdmin(admin.ModelAdmin):

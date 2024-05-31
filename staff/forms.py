@@ -92,6 +92,20 @@ class MessageForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control', 'rows':2}), label="توضیحات", required=False)
 
 
+class MessageAddForm(forms.ModelForm):
+
+    class Meta:
+        model = MessagesModel
+        fields = (
+            'customer',
+            'text',
+        )
+        widgets = {
+            'customer': forms.Select(attrs={'class':'form-control', 'id':'id_user'}),
+            'text': forms.Textarea(attrs={'class':'form-control', 'rows':2}),
+        }
+
+
 class RequestAcceptForm(forms.Form):
     area = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="متراژ", validators=[is_positive])
     discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=False)

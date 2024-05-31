@@ -240,7 +240,7 @@ class RequestListView(PermissionRequiredMixin, views.View):
     permission_required = []
 
     def get(self, request):
-        req = RequestModel.objects.filter(state=RequestModel.STATE_WAIT).order_by('-created_date')
+        req = RequestModel.objects.all().order_by('-created_date')
         return render(request, 'staff/request-list.html', {'req':req})
     
 
@@ -399,4 +399,61 @@ class MessagesListView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         mes = MessagesModel.objects.all().order_by('-created_date')
-        return render(request, 'staff/messages-list.html', {'mes':mes})
+        form = MessageAddForm()
+        return render(request, 'staff/messages-list.html', {'mes':mes, 'form':form})
+    
+
+class MessageAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        form = MessageAddForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user_created = user
+            obj.user_modified = user
+            obj.is_active = True
+            obj.save()
+            messages.success(request, f"پیغام شما برای مشارکت کننده {obj.customer.company} ({obj.customer.firstname} {obj.customer.firstname}) با موفقیت ارسال شد.")
+            return redirect('staff:message-list')
+        messages.warning(request, "خطا در انجام عملیات رخ داده است، لطفا دوباره سعی کنید!")
+        return redirect('staff:message-list')
+    
+
+class MessageChangeView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = []
+
+    def get(self, request, mid):
+        mes = get_object_or_404(MessagesModel, pk=mid)
+        form = MessageForm(initial={'text':mes.text})
+        context = {
+            'mes':mes,
+            'form':form,
+        }
+        return render(request, 'staff/message-change.html', context)
+    
+    def post(self, request, mid):
+        user = get_object_or_404(User, pk=request.user.id)
+        mes = get_object_or_404(MessagesModel, pk=mid)
+        form = MessageForm(request.POST)
+        context = {
+            'mes':mes,
+            'form':form,
+        }
+        if form.is_valid():
+            text = form.cleaned_data.get('text')
+            old = MessageChangeModel()
+            old.text = mes.text
+            old.user_modified = mes.user_modified
+            old.modified_date = mes.modified_date
+            old.message = mes
+            old.save()
+            messages.success(request, f"پیغام شما برای مشارکت کننده {mes.customer.company} با موفقیت ویرایش شد.")
+            mes.user_modified = user
+            mes.text = text
+            mes.save()
+            return redirect('staff:message-list')
+        return render(request, 'staff/message-change.html', context)
