@@ -11,6 +11,11 @@
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست مشارکت کنندگان</h3>
+                    {% for customer in customer %}
+                    {% if forloop.last %}
+                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> مشارکت کننده غیر فعال</p>
+                    {% endif %}
+                    {% endfor %}
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="thead-light">
@@ -61,6 +66,11 @@
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست درخواست‌ها</h3>
+                    {% for req in req %}
+                    {% if forloop.last %}
+                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> درخواست بررسی نشده</p>
+                    {% endif %}
+                    {% endfor %}
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="thead-light">
@@ -108,7 +118,7 @@
                         </table>
                     </div>
                     <hr>
-                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                    <div><a class="btn" href="{% url 'staff:request-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
             {% endif %}
@@ -117,6 +127,11 @@
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست نمایشگاه‌ها</h3>
+                    {% for exhibition in exhibition %}
+                    {% if forloop.last %}
+                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> نمایشگاه در حال ثبت‌نام</p>
+                    {% endif %}
+                    {% endfor %}
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="thead-light">
@@ -148,7 +163,7 @@
                         </table>
                     </div>
                     <hr>
-                    <div><a class="btn" href="#">مشاهده همه</a></div>
+                    <div><a class="btn" href="{% url 'staff:exhibition-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
         </div>
