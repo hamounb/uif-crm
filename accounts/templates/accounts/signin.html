@@ -35,11 +35,9 @@
                                     <h3 class="mb-3"><b>ورود به حساب کاربری</b></h3>
                                     <p>سلام کاربر گرامی، خوش آمدید!</p>
                                     {% if messages %}
-                                        <ul class="messages">
-                                            {% for message in messages %}
-                                            <li{% if message.tags == "error" %} class="text-danger"{% endif %}>{{ message }}</li>
-                                            {% endfor %}
-                                        </ul>
+                                    {% for message in messages %}
+                                    <h5 {% if message.tags == "error" %}class="text-danger mb-2"{% else %}class="text-{{ message.tags }} mb-2"{% endif %}>{{ message }}</h5>
+                                    {% endfor %}
                                     {% endif %}
                                     {% if form.non_field_errors %}
                                         {% for error in form.non_field_errors %}
@@ -48,7 +46,6 @@
                                         </p>
                                         {% endfor %}
                                     {% endif %}
-                                    <h5 class="text-danger">{{ message }}</h5>
                                 </div>
                                 <div class="col-lg-12 form-group">
                                     {{ form.code.label_tag }}
@@ -72,11 +69,11 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="col-lg-6 form-group">
-                                    <input class="btn btn-rounded btn-outline" type="submit" value="ورود">
+                                <div class="col-lg-12">
+                                    <input class="btn btn-block" type="submit" value="ورود">
                                 </div>
-                                <div class="col-lg-6">
-                                    <h5 class="text-danger"> حساب کاربری ندارم > <a href="{% url 'accounts:signup' %}" class="btn btn-success"> ثبت نام</a></h5>
+                                <div class="col-lg-12 form-group">
+                                    <a href="{% url 'accounts:signup' %}" class="btn btn-success btn-block"> ثبت نام</a>
                                 </div>
                             </div>
                         </form>

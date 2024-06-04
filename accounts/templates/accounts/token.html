@@ -9,10 +9,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <title>اعتبار سنجی رمز یکبارمصرف</title>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/rtl.css' %}" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -35,11 +40,9 @@
                                     <h3 class="mb-3"><b>تایید رمز یکبارمصرف</b></h3>
                                     <p>لطفا رمز ۶ رقمی ارسال شده به شماره موبایل خود را وارد کنید!</p>
                                     {% if messages %}
-                                        <ul class="messages">
                                             {% for message in messages %}
-                                            <li{% if message.tags == "error" %} class="text-danger"{% endif %}>{{ message }}</li>
+                                            <h5{% if message.tags == "error" %} class="text-danger mb-2"{% else %}class="text-{{ message.tags }} mb-2"{% endif %}>{{ message }}</h5>
                                             {% endfor %}
-                                        </ul>
                                     {% endif %}
                                     {% if form.non_field_errors %}
                                         {% for error in form.non_field_errors %}
@@ -58,14 +61,14 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="col-lg-3 form-group">
-                                    <input class="btn btn-success" type="submit" value="تائید">
+                                <div class="col-lg-12">
+                                    <input class="btn btn-success btn-block" type="submit" value="تایید و ارسال ">
                                 </div>
-                                <div class="col-lg-9">
-                                    <h5 class="text-danger"> شماره موبایل را اشتباه وارد کردم > <a href="{% url 'accounts:change-mobile' code=code %}" class="btn btn-rounded btn-outline"> تغییر شماره موبایل</a></h5>
+                                <div class="col-lg-12">
+                                    <a href="{% url 'accounts:re-token' code=code %}" id="myLink" onclick="hideAndSendAjax(event)" class="btn btn-block">دریافت رمز عبور یکبارمصرف</a>
                                 </div>
-                                <div class="col-lg-4">
-                                    <a href="{% url 'accounts:re-token' code=code %}" class="btn">ارسال مجدد رمز</a>
+                                <div class="col-lg-12 form-group">
+                                    <a href="{% url 'accounts:change-mobile' code=code %}" class="btn btn-dribbble btn-block"> تغییر شماره موبایل</a>
                                 </div>
                             </div>
                         </form>
@@ -82,5 +85,39 @@
     <script src="{% static 'js/plugins.js' %}"></script>
 
     <script src="{% static 'js/functions.js' %}"></script>
+    <script>
+        function hideAndSendAjax(event) {
+            event.preventDefault(); // Prevent the default action of the link
+
+            var link = document.getElementById('myLink');
+            link.style.display = 'none'; // Hide the link
+
+            // Send the AJAX request
+            fetch(link.href, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            // Show the link again after 2 minutes (120,000 milliseconds)
+            setTimeout(function() {
+                link.style.display = '';
+            }, 120000);
+        }
+    </script>
+
 </body>
 </html>

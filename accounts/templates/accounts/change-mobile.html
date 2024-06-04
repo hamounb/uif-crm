@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="images/favicon.png">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>اعتبار سنجی رمز یکبارمصرف</title>
+    <title>تغییر شماره موبایل</title>
 
     <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
@@ -35,11 +35,9 @@
                                     <h3 class="mb-3"><b>تغییر شماره موبایل</b></h3>
                                     <p>تغییر شماره موبایل برای کد ملی {{ code }} می‌باشد!</p>
                                     {% if messages %}
-                                        <ul class="messages">
                                             {% for message in messages %}
-                                            <li{% if message.tags %} class="text-{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                            <h5{% if message.tags == "error" %} class="text-danger"{% else %}class="text-{{ message.tags }}"{% endif %}>{{ message }}</h5>
                                             {% endfor %}
-                                        </ul>
                                     {% endif %}
                                     {% if form.non_field_errors %}
                                         {% for error in form.non_field_errors %}
@@ -59,11 +57,11 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="col-lg-3 form-group">
-                                    <input class="btn btn-success" type="submit" value="تائید">
+                                <div class="col-lg-12">
+                                    <input class="btn btn-block" type="submit" value="تغییر شماره">
                                 </div>
-                                <div class="col-lg-9">
-                                    <h5 class="text-danger"> حساب کاربری ندارم > <a href="{% url 'accounts:signup' %}" class="btn btn-rounded btn-outline"> ثبت نام</a></h5>
+                                <div class="col-lg-12 form-group">
+                                    <a href="{% url 'accounts:verify' code=code %}" class="btn btn-danger btn-block">بازگشت</a>
                                 </div>
                             </div>
                         </form>

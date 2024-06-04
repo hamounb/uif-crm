@@ -53,7 +53,8 @@
                                         <ul class="text-center">
                                             {% comment %} <li><a href="#"><i class="icon-mail"></i>پیام ها</a></li> {% endcomment %}
                                             <li><a href="#"><i class="icon-settings"></i>تنظیمات</a></li>
-                                            <li><a href="#"><i class="icon-log-out"></i>خروج</a>
+                                            <li>
+                                                <a href="{% url 'accounts:signout' %}"><i class="icon-log-out"></i>خروج</a>
                                             </li>
                                         </ul>
                                     </ul>

@@ -3,9 +3,12 @@ from django import views
 from .forms import *
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import TokenModel
+from .models import TokenModel, MobileModel
+from datetime import datetime, timedelta
+from django.http import JsonResponse
+from .payamak import send_sms, send_token
 
 # Create your views here.
 
@@ -26,28 +29,146 @@ class SignUpView(views.View):
             try:
                 new.save()
             except IntegrityError as e:
-                e = 'قبلا با این کد ملی حساب کاربری ایجاد شده است!'
-                return render(request, 'accounts/signup.html', {'form':form, 'message':e})
-            tk = TokenModel(user=new)
+                messages.error(request, 'قبلا با این کد ملی حساب کاربری ایجاد شده است!')
+                return render(request, 'accounts/signup.html', {'form':form})
+            otp = send_token(mobile)
+            tk = TokenModel(user=new, otp=otp['code'], status=otp['status'])
             tk.save()
-            tk.generate()
-            tk.save()
-            request.session['un'] = code
-            request.session['mo'] = mobile
+            number = MobileModel()
+            number.user = new
+            number.mobile = mobile
+            number.save()
             return redirect('accounts:verify', code=code)
         else:
             return render(request, 'accounts/signup.html', {'form':form})
+
+ 
+class MobileVerifyView(views.View):
+
+    def get(self, request, code):
+        user = get_object_or_404(User, username=code)
+        if not user.is_active and not user.is_staff:
+            try:
+                mobile = MobileModel.objects.get(user=user)
+            except MobileModel.DoesNotExist:
+                messages.error(request, "شماره موبایل شما ثبت نشده است!")
+                return redirect('accounts:change-mobile', code=code)
+            form = TokenForm()
+            return render(request, 'accounts/token.html', {'form':form, 'code':code})
+        return redirect('accounts:signin')
+    
+    def post(self, request, code):
+        user = get_object_or_404(User, username=code)
+        if not user.is_active and not user.is_staff:
+            try:
+                mobile = MobileModel.objects.get(user=user)
+            except MobileModel.DoesNotExist:
+                messages.error(request, "شماره موبایل شما ثبت نشده است!")
+                return redirect('accounts:change-mobile', code=code)
+            form = TokenForm(request.POST)
+            try:
+                tk = TokenModel.objects.get(user=user)
+            except TokenModel.DoesNotExist:
+                messages.error(request, "خطای سیستمی رخ داده است، لطفا دوباره سعی کنید!")
+                return redirect('accounts:signin')
+            if form.is_valid():
+                otp = form.cleaned_data['otp']
+                if tk.otp == otp:
+                    if datetime.now() - datetime(
+                        year=tk.modified_date.year, month=tk.modified_date.month, day=tk.modified_date.day, hour=tk.modified_date.hour, minute=tk.modified_date.minute, second=tk.modified_date.second, microsecond=tk.modified_date.microsecond) > timedelta(2):
+                        messages.warning(request, "رمز یکبارمصرف شما منقضی شده، لطفا درخواست ارسال مجدد را کلیک کنید.")
+                        return render(request, 'accounts/token.html', {'form':form, 'code':code})
+                    user.is_active = True
+                    user.save()
+                    us = authenticate(username=code, password=mobile.mobile)
+                    if us is not None:
+                        login(request, user)
+                        return redirect('crm:index')
+                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
+                else:
+                    messages.error(request, 'رمز یکبارمصرف اشتباه است!')
+                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
+            else:
+                return render(request, 'accounts/token.html', {'form':form, 'code':code})
+        else:
+            return redirect('accounts:signin')
         
+
+class ChangeMobileView(views.View):
+
+    def get(self, request, code):
+        user = get_object_or_404(User, username=code)
+        if not user.is_active and not user.is_staff:
+            form = ChangeMobileForm()
+            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
+        return redirect('accounts:signin')
+    
+    def post(self, request, code):
+        user = get_object_or_404(User, username=code)
+        if not user.is_active and not user.is_staff:
+            form = ChangeMobileForm(request.POST)
+            if form.is_valid():
+                mobile = form.cleaned_data.get('mobile')
+                user.set_password(mobile)
+                user.save()
+                otp = send_token(mobile)
+                try:
+                    tk = TokenModel.objects.get(user=user)
+                except TokenModel.DoesNotExist:
+                    tk = TokenModel(user=user)
+                tk.otp = otp['code']
+                tk.status = otp['status']
+                tk.save()
+                try:
+                    number = MobileModel.objects.get(user=user)
+                except MobileModel.DoesNotExist:
+                    number = MobileModel(user=user)
+                number.mobile = mobile
+                number.save()
+                messages.success(request, f"شماره موبایل شما به {mobile} تغییر یافت.")
+                return redirect('accounts:verify', code=code)
+            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
+        return redirect('accounts:signin')
+    
+
+class ReTokenView(views.View):
+
+    def get(self, request, code):
+        user = get_object_or_404(User, username=code)
+        try:
+            mobile = MobileModel.objects.get(user=user)
+        except MobileModel.DoesNotExist:
+            return redirect('accounts:change-mobile', code=code)
+        try:
+            tk = TokenModel.objects.get(user=user)
+        except TokenModel.DoesNotExist:
+            tk = TokenModel(user=user)
+        otp = send_token(mobile.mobile)
+        tk.otp = otp['code']
+        tk.status = otp['status']
+        tk.save()
+        data = {
+            'message': 'Done',
+        }
+        return JsonResponse(data)
+
+
 class SignInView(views.View):
 
     def get(self, request):
         if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=request.user.id)
+            if user.is_staff:
+                return redirect('staff:home')
             return redirect('crm:index')
         form = LoginForm()
         return render(request, 'accounts/signin.html', {'form':form})
     
     def post(self, request):
         if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=request.user.id)
+            if user.is_staff:
+                return redirect('staff:home')
             return redirect('crm:index')
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -56,7 +177,7 @@ class SignInView(views.View):
             try:
                 user = User.objects.get(username=code)
             except User.DoesNotExist:
-                messages.error(request, 'حساب کاربری با این کد ملی وجود ندارد، لطفا ابتدا حساب کاربری ایجاد کنید!')
+                messages.error(request, 'حساب کاربری با این کد ملی وجود ندارد، لطفا ابتدا ثبت نام کنید!')
                 return render(request, 'accounts/signin.html', {'form':form})
             auser = authenticate(username=code, password=mobile)
             if auser is not None:
@@ -67,15 +188,10 @@ class SignInView(views.View):
                     tk = TokenModel.objects.get(user=user)
                 except TokenModel.DoesNotExist:
                     tk = TokenModel(user=user)
-                    tk.generate()
-                    tk.save()
-                    request.session['un'] = code
-                    request.session['mo'] = mobile
-                    return redirect('accounts:verify', code=user.username)
-                tk.generate()
+                otp = send_token(mobile)
+                tk.otp = otp['code']
+                tk.status = otp['status']
                 tk.save()
-                request.session['un'] = code
-                request.session['mo'] = mobile
                 return redirect('accounts:verify', code=user.username)
             else:
                 messages.error(request, 'شماره موبایل اشتباه است!')
@@ -84,100 +200,8 @@ class SignInView(views.View):
             return render(request, 'accounts/signin.html', {'form':form})
         
 
-class MobileVerifyView(views.View):
+class SignOutView(views.View):
 
-    def get(self, request, code):
-        user = get_object_or_404(User, username=code)
-        if not user.is_active:
-            form = TokenForm()
-            return render(request, 'accounts/token.html', {'form':form, 'code':code})
+    def get(self, request):
+        logout(request)
         return redirect('accounts:signin')
-    
-    def post(self, request, code):
-        user = get_object_or_404(User, username=code)
-        if not user.is_active:
-            form = TokenForm(request.POST)
-            try:
-                tk = TokenModel.objects.get(user=user)
-            except TokenModel.DoesNotExist:
-                return redirect('accounts:signin')
-            if form.is_valid():
-                otp = form.cleaned_data['otp']
-                mobile = request.session.get('mo')
-                if tk.otp != otp:
-                    messages.error(request, 'رمز یکبارمصرف اشتباه است!')
-                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
-                elif not user.check_password(mobile):
-                    messages.error(request, 'شماره موبایل اشتباه است!')
-                    return render(request, 'accounts/token.html', {'form':form, 'code':code})
-                else:
-                    user.is_active = True
-                    user.save()
-                    us = authenticate(username=code, password=mobile)
-                    if us is not None:
-                        login(request, user)
-                        try:
-                            del request.session['mo']
-                            del request.session['un']
-                        except KeyError:
-                            return redirect('crm:index')
-                        return redirect('crm:index')
-            else:
-                return render(request, 'accounts/token.html', {'form':form, 'code':code})
-        else:
-            return redirect('crm:index')
-        
-
-class ChangeMobileView(views.View):
-
-    def get(self, request, code):
-        user = get_object_or_404(User, username=code)
-        if not user.is_active:
-            form = ChangeMobileForm()
-            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
-        return redirect('accounts:signin')
-    
-    def post(self, request, code):
-        user = get_object_or_404(User, username=code)
-        if not user.is_active:
-            form = ChangeMobileForm(request.POST)
-            if form.is_valid():
-                mobile = form.cleaned_data.get('mobile')
-                user.set_password(mobile)
-                user.save()
-                try:
-                    tk = TokenModel.objects.get(user=user)
-                except TokenModel.DoesNotExist:
-                    tk = TokenModel(user=user)
-                    tk.save()
-                    tk.generate()
-                    request.session['mo'] = mobile
-                    return redirect('accounts:verify', code=code)
-                tk.save()
-                tk.generate()
-                tk.save()
-                request.session['un'] = code
-                request.session['mo'] = mobile
-                return redirect('accounts:verify', code=code)
-            return render(request, 'accounts/change-mobile.html', {'form':form, 'code':code})
-        return redirect('accounts:signin')
-    
-
-class ReTokenView(views.View):
-
-    def get(self, request, code):
-        try:
-            user = User.objects.get(username=code)
-        except User.DoesNotExist:
-            return redirect('accounts:signin')
-        try:
-            tk = TokenModel.objects.get(user=user)
-        except TokenModel.DoesNotExist:
-            tk = TokenModel(user=user)
-            tk.save()
-            tk.generate()
-            tk.save()
-            return redirect('accounts:verify', code=code)
-        tk.generate()
-        tk.save()
-        return redirect('accounts:verify', code=code)
