@@ -18,9 +18,10 @@ class Test(PermissionRequiredMixin, views.View):
 
 class HomeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_customermodel']
 
     def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
         req = RequestModel.objects.filter(state=RequestModel.STATE_WAIT).order_by('-created_date')
         exhibition = ExhibitionModel.objects.filter(is_active=True)
@@ -34,7 +35,7 @@ class HomeView(PermissionRequiredMixin, views.View):
 
 class CustomerListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_customermodel']
 
     def get(self, request):
         customer = CustomerModel.objects.all().order_by('-created_date')
@@ -43,7 +44,7 @@ class CustomerListView(PermissionRequiredMixin, views.View):
 
 class CustomerAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_customermodel', 'crm.add_customermodel']
 
     def get(self, request):
         form = CustomerAddForm()
@@ -112,7 +113,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
 
 class CustomerChangeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_customermodel', 'crm.change_customermodel']
 
     def get(self, request, cid):
         customer = get_object_or_404(CustomerModel, pk=cid)
@@ -163,7 +164,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
 
 class DocumentsAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_documentsmodel', 'crm.add_documentsmodel']
 
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
@@ -188,7 +189,7 @@ class DocumentsAddView(PermissionRequiredMixin, views.View):
 
 class DocumentsDelView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_documentsmodel', 'crm.delete_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -201,7 +202,7 @@ class DocumentsDelView(PermissionRequiredMixin, views.View):
 
 class DocumentsAcceptView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_documentsmodel', 'crm.change_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -214,7 +215,7 @@ class DocumentsAcceptView(PermissionRequiredMixin, views.View):
 
 class DocumentsDenyView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_documentsmodel', 'crm.change_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -228,7 +229,7 @@ class DocumentsDenyView(PermissionRequiredMixin, views.View):
 
 class DocumentsListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_documentsmodel']
 
     def get(self, request):
         doc = DocumentsModel.objects.filter(Q(state=DocumentsModel.STATE_WAIT) | Q(state=DocumentsModel.STATE_DENY)).order_by('-created_date')
@@ -237,7 +238,7 @@ class DocumentsListView(PermissionRequiredMixin, views.View):
 
 class RequestListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_requestmodel']
 
     def get(self, request):
         req = RequestModel.objects.all().order_by('-created_date')
@@ -246,7 +247,7 @@ class RequestListView(PermissionRequiredMixin, views.View):
 
 class RequestDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_requestmodel', 'crm.add_requestmodel', 'crm.add_invoicemodel', 'crm.add_messagesmodel']
 
     def get(self, request, rid):
         req = get_object_or_404(RequestModel, pk=rid)
@@ -311,7 +312,7 @@ class RequestDetailsView(PermissionRequiredMixin, views.View):
 
 class InvoiceAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_invoicemodel', 'crm.add_invoicemodel']
 
     def get(self, request):
         form = InvoiceForm()
@@ -337,7 +338,7 @@ class InvoiceAddView(PermissionRequiredMixin, views.View):
 
 class InvoiceListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_invoicemodel']
 
     def get(self, request):
         invoices = InvoiceModel.objects.all().order_by('-created_date')
@@ -346,7 +347,7 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
 
 class InvoiceDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.add_invoicemodel', 'crm.change_invoicemodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
@@ -355,7 +356,7 @@ class InvoiceDetailsView(PermissionRequiredMixin, views.View):
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_exhibitionmodel', 'crm.add_exhibitionmodel']
 
     def get(self, request):
         form = ExhibitionForm()
@@ -377,7 +378,7 @@ class ExhibitionAddView(PermissionRequiredMixin, views.View):
 
 class ExhibitionListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_exhibitionmodel']
 
     def get(self, request):
         exh = ExhibitionModel.objects.all().order_by('-created_date')
@@ -386,7 +387,7 @@ class ExhibitionListView(PermissionRequiredMixin, views.View):
 
 class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_exhibitionmodel', 'crm.change_exhibitionmodel']
 
     def get(self, request, eid):
         cus = InvoiceModel.objects.filter(Q(is_active=True) & Q(exhibition=eid))
@@ -395,7 +396,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
 
 class MessagesListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_messagesmodel']
 
     def get(self, request):
         mes = MessagesModel.objects.all().order_by('-created_date')
@@ -405,7 +406,7 @@ class MessagesListView(PermissionRequiredMixin, views.View):
 
 class MessageAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_messagesmodel', 'crm.add_messagesmodel']
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
@@ -424,7 +425,7 @@ class MessageAddView(PermissionRequiredMixin, views.View):
 
 class MessageChangeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = []
+    permission_required = ['crm.view_messagesmodel', 'crm.change_messagesmodel', 'crm.view_messagechangemodel', 'crm.add_messagechangemodel']
 
     def get(self, request, mid):
         mes = get_object_or_404(MessagesModel, pk=mid)

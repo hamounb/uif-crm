@@ -5,7 +5,7 @@
 {% endblock title %}
 
 {% block content %}
-<section id="page-content">
+<section id="page-content" class="background-light">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-
+            {% if customer %}
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
@@ -43,8 +43,8 @@
                                                 <h4><span class="badge badge-pill badge-light">{{ customer.get_state_display }}</span></h4>
                                                 {% endif %}
                                             </td>
-                                            <td>{{ customer.company }}</td>
-                                            <td>{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                            <td style="color:blueviolet">{{ customer.company }}</td>
+                                            <td class="text-primary">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                             <td>
                                                 {% if customer.is_active %}
                                                 <span class="badge badge-success">قبول</span>
@@ -52,7 +52,7 @@
                                                 <span class="badge badge-danger">غیرفعال</span>
                                                 {% endif %}
                                             </td>
-                                            <td><a href="{% url 'crm:customer-change' id=customer.pk %}">مشاهده</a></td>
+                                            <td><a href="{% url 'crm:customer-change' id=customer.pk %}">ویرایش</a></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -63,6 +63,15 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="h5">هنوز حساب تجاری ایجاد نکرده‌اید، جهت ایجاد حساب جدید از <a class="btn btn-info btn-xs" href="{% url 'crm:customer-add' %}">اینجا</a> اقدام کنید.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>

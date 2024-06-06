@@ -1,5 +1,5 @@
 {% extends "base-c.html" %}
-
+{% load static %}
 {% block title %}
 ثبت مشخصات مشارکت کننده
 {% endblock title %}
@@ -13,6 +13,7 @@
                     <div class="card-body">
                         <h2>فرم ثبت اطلاعات</h2>
                         <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح حساب کاربری شما غیر فعال خواهد شد!</p>
+                        <p>برای مشارکت کنندگان حقیقی و حقوقی، نام تجاری/شرکت الزامی است.</p>
                         <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
                 </div>
@@ -20,17 +21,16 @@
             {% if messages %}
             <div class="col-lg-12">
                 {% for message in messages %}
-                    {% if message.extra_tags == 'danger' %}
+                    {% if message.tags == 'error' %}
                         <div role="alert" class="alert alert-danger alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                             <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
                             {{ message}}
                         </div>
-                    {% endif %}
-                    {% if message.extra_tags == 'success' %}
-                        <div role="alert" class="alert alert-success alert-dismissible">
+                    {% else %}
+                        <div role="alert" class="alert alert-{{ message.tags }} alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-check-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -162,7 +162,7 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="form-group col-md-5">
+                                <div class="form-group col-lg-5">
                                     {{ form.address.label_tag }}
                                     {{ form.address }}
                                     {% if form.address.errors %}

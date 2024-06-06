@@ -26,7 +26,6 @@ def is_postal(value):
 
 class CustomerAddForm(forms.ModelForm):
     ncode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی شرکت/سازمان", validators=[is_ncode])
-    mobile = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره همراه", validators=[is_mobile])
     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
     fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
     postalcode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد پستی", validators=[is_postal])
@@ -41,7 +40,6 @@ class CustomerAddForm(forms.ModelForm):
                   'ceoname',
                   'company',
                   'ncode',
-                  'mobile',
                   'phone',
                   'fax',
                   'email',

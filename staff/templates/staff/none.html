@@ -14,10 +14,12 @@
             </div>
             <div class="col-lg-6">
                 <div class="text-left">
-                    <h1 class="text-medium">مجاز نیستید!</h1>
-                    <p class="lead">در سامانه ثبت‌نام شرکت نمایشگاه بین‌المللی ارومیه، هر بخش دارای سطح دسترسی مربوط به خود
-                        را دارد که توسط مدیر سیستم اعمال می‌شود و شما مجاز به مشاهده بخش مورد نظر خواهید بود.
-                    </p>
+                    {% if title %}
+                    <h1 class="text-medium">{{ title }}</h1>
+                    {% endif %}
+                    {% if content %}
+                    <p class="lead">{{ content }}</p>
+                    {% endif %}
                     <div class="seperator m-t-20 m-b-20"></div>
                     <div class="search-form">
                         <p>لطفا دوباره جستجو کنید</p>

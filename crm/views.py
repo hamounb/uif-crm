@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib import messages
 from .models import *
+from accounts.models import MobileModel
 from .forms import *
 
 # Create your views here.
@@ -52,6 +53,7 @@ class CustomerAddView(LoginRequiredMixin, views.View):
     
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
+        mobile = get_object_or_404(MobileModel, user=user)
         form = CustomerAddForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -64,21 +66,23 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                     return render(request, 'crm/customer-add.html', {'form':form})
                 else:
                     obj.code = user.username
+                    obj.mobile = mobile.mobile
                     obj.user = user
                     obj.user_modified = user
                     obj.user_created = user
                     obj.save()
-                    messages.success(request, f"مشتری حقوقی {obj.company} اطلاعات شما ثبت شد.")
+                    messages.success(request, f"مشتری حقوقی {obj.company}، اطلاعات شما ثبت شد.")
                     return redirect('crm:customer-change', id=obj.id)
             else:
                 obj.code = user.username
+                obj.mobile = mobile.mobile
                 obj.ceoname = ''
                 obj.ncode = ''
                 obj.user = user
                 obj.user_modified = user
                 obj.user_created = user
                 obj.save()
-                messages.success(request, f"مشتری حقیقی {obj.company} اطلاعات شما ثبت شد.")
+                messages.success(request, f"مشتری حقیقی {obj.company}، اطلاعات شما ثبت شد.")
                 return redirect('crm:customer-change', id=obj.id)
         return render(request, 'crm/customer-add.html', {'form':form})
 
@@ -191,7 +195,7 @@ class RequestsAddView(LoginRequiredMixin, views.View):
         }
         if customer:
             return render(request, 'crm/requests-add.html', context)
-        messages.error(request, 'کابر گرامی شما پروفایل کاربری فعال ندارید!', extra_tags='danger')
+        messages.error(request, 'کابر گرامی شما پروفایل کاربری فعال ندارید!')
         return render(request, 'crm/requests-add.html', context)
     
     def post(self, request):
