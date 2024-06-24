@@ -5,14 +5,23 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
+from django.db.models import Sum
 
 # Create your views here.
 
 class Test(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.add_customermodel', 'crm.add_requestmodel']
+    permission_required = []
 
     def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        print(user.get_all_permissions())
+        if user.get_all_permissions():
+            print("all:yes")
+        print("--------")
+        print(user.get_user_permissions())
+        if user.get_user_permissions():
+            print("user:yes")
         return render(request, 'staff/test.html')
     
 
@@ -29,6 +38,7 @@ class HomeView(PermissionRequiredMixin, views.View):
             'customer':customer,
             'exhibition':exhibition,
             'req':req,
+            'user':user,
         }
         return render(request, 'staff/home.html', context)
     
@@ -44,7 +54,7 @@ class CustomerListView(PermissionRequiredMixin, views.View):
 
 class CustomerAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_customermodel', 'crm.add_customermodel']
+    permission_required = ['crm.add_customermodel']
 
     def get(self, request):
         form = CustomerAddForm()
@@ -113,7 +123,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
 
 class CustomerChangeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_customermodel', 'crm.change_customermodel']
+    permission_required = ['crm.change_customermodel']
 
     def get(self, request, cid):
         customer = get_object_or_404(CustomerModel, pk=cid)
@@ -164,7 +174,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
 
 class DocumentsAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_documentsmodel', 'crm.add_documentsmodel']
+    permission_required = ['crm.add_documentsmodel']
 
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
@@ -189,7 +199,7 @@ class DocumentsAddView(PermissionRequiredMixin, views.View):
 
 class DocumentsDelView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_documentsmodel', 'crm.delete_documentsmodel']
+    permission_required = ['crm.delete_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -202,7 +212,7 @@ class DocumentsDelView(PermissionRequiredMixin, views.View):
 
 class DocumentsAcceptView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_documentsmodel', 'crm.change_documentsmodel']
+    permission_required = ['crm.change_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -215,7 +225,7 @@ class DocumentsAcceptView(PermissionRequiredMixin, views.View):
 
 class DocumentsDenyView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_documentsmodel', 'crm.change_documentsmodel']
+    permission_required = ['crm.change_documentsmodel']
 
     def get(self, request, fid):
         file = get_object_or_404(DocumentsModel, pk=fid)
@@ -247,7 +257,7 @@ class RequestListView(PermissionRequiredMixin, views.View):
 
 class RequestDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_requestmodel', 'crm.add_requestmodel', 'crm.add_invoicemodel', 'crm.add_messagesmodel']
+    permission_required = ['crm.add_requestmodel', 'crm.add_invoicemodel', 'crm.add_messagesmodel']
 
     def get(self, request, rid):
         req = get_object_or_404(RequestModel, pk=rid)
@@ -312,7 +322,7 @@ class RequestDetailsView(PermissionRequiredMixin, views.View):
 
 class InvoiceAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_invoicemodel', 'crm.add_invoicemodel']
+    permission_required = ['crm.add_invoicemodel']
 
     def get(self, request):
         form = InvoiceForm()
@@ -347,7 +357,7 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
 
 class InvoiceDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.add_invoicemodel', 'crm.change_invoicemodel']
+    permission_required = ['crm.change_invoicemodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
@@ -356,7 +366,7 @@ class InvoiceDetailsView(PermissionRequiredMixin, views.View):
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_exhibitionmodel', 'crm.add_exhibitionmodel']
+    permission_required = ['crm.add_exhibitionmodel']
 
     def get(self, request):
         form = ExhibitionForm()
@@ -387,11 +397,23 @@ class ExhibitionListView(PermissionRequiredMixin, views.View):
 
 class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_exhibitionmodel', 'crm.change_exhibitionmodel']
+    permission_required = ['crm.change_exhibitionmodel']
 
     def get(self, request, eid):
         cus = InvoiceModel.objects.filter(Q(is_active=True) & Q(exhibition=eid))
-        return render(request, 'staff/exhibition-details.html', {'cus':cus})
+        total = 0
+        area = 0
+        for i in cus:
+            total += float(i.total_price)
+            area += i.area
+        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
+        context = {
+            'cus':cus,
+            'exh':exhibition,
+            'total':total,
+            'area':area,
+        }
+        return render(request, 'staff/exhibition-details.html', context)
 
 
 class MessagesListView(PermissionRequiredMixin, views.View):
@@ -406,7 +428,7 @@ class MessagesListView(PermissionRequiredMixin, views.View):
 
 class MessageAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_messagesmodel', 'crm.add_messagesmodel']
+    permission_required = ['crm.add_messagesmodel']
 
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
@@ -425,7 +447,7 @@ class MessageAddView(PermissionRequiredMixin, views.View):
 
 class MessageChangeView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['crm.view_messagesmodel', 'crm.change_messagesmodel', 'crm.view_messagechangemodel', 'crm.add_messagechangemodel']
+    permission_required = ['crm.change_messagesmodel', 'crm.add_messagechangemodel']
 
     def get(self, request, mid):
         mes = get_object_or_404(MessagesModel, pk=mid)

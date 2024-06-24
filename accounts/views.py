@@ -83,6 +83,8 @@ class MobileVerifyView(views.View):
                     us = authenticate(username=code, password=mobile.mobile)
                     if us is not None:
                         login(request, user)
+                        if user.get_all_permissions():
+                            return redirect('staff:home')
                         return redirect('crm:index')
                     return render(request, 'accounts/token.html', {'form':form, 'code':code})
                 else:
@@ -182,6 +184,8 @@ class SignInView(views.View):
             auser = authenticate(username=code, password=mobile)
             if auser is not None:
                 login(request, user)
+                if user.get_user_permissions():
+                    return redirect('staff:home')
                 return redirect('crm:index')
             elif not user.is_active and user.check_password(mobile):
                 try:

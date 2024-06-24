@@ -116,7 +116,7 @@
                                                         {% for exh in exh %}
                                                         {% if not exh.is_active %}
                                                         <tr>
-                                                            <td>{% if not exh.is_active %} <i class="fa fa-check-square"></i>{% else %}{% endif %}</td>
+                                                            <td>{% if not exh.is_active %} <i class="fa fa-minus-square"></i>{% else %}{% endif %}</td>
                                                             <td class="text-primary">
                                                                 {% if exh.sid %}
                                                                 {{ exh.sid }}

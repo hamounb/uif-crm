@@ -56,12 +56,13 @@
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>کد</th>
-                                                <th>نوع کاربر</th>
                                                 <th>کد معین</th>
                                                 <th>نام تجاری</th>
                                                 <th>نام و نشان</th>
                                                 <th>کدملی</th>
                                                 <th>موبایل</th>
+                                                <th>نام مدیرعامل</th>
+                                                <th>شناسه‌ملی</th>
                                                 <th>تاریخ ایجاد</th>
                                                 <th>اقدامات</th>
                                             </tr>
@@ -70,32 +71,36 @@
                                             {% for customer in customer %}
                                             <tr>
                                                 <td>{{ customer.pk }}</td>
-                                                <td>{% if customer.state == "legal" %}
-                                                    <h4><span class="badge badge-pill badge-info">{{ customer.get_state_display }}</span></h4>
-                                                    {% else %}
-                                                    <h4><span class="badge badge-pill badge-light">{{ customer.get_state_display }}</span></h4>
-                                                    {% endif %}
-                                                </td>
                                                 <td>{% if customer.sid %}
                                                     {{ customer.sid }}
                                                     {% else %}
-                                                    ندارد
+                                                    ---
                                                     {% endif %}
                                                 </td>
-                                                <td style="color:blueviolet"><b>{{ customer.company }}</b></td>
-                                                <td class="text-info">{{ customer.firstname }} {{ customer.lastname}}</td>
-                                                {% if customer.state == "legal" %}
-                                                <td class="text-primary" data-toggle="tooltip" data-placement="top" title="شناسه‌ملی: {{ customer.ncode }}">
-                                                    {{ customer.code }}
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %}">
+                                                    <b>{{ customer.company }}</b>
                                                 </td>
-                                                {% else %}
+                                                <td class="text-info">{{ customer.firstname }} {{ customer.lastname}}</td>
                                                 <td class="text-primary">
                                                     {{ customer.code }}
                                                 </td>
-                                                {% endif %}
                                                 <td class="text-primary">{{ customer.mobile }}</td>
-                                                <td>{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                                <td><a href="{% url 'staff:customer-change' cid=customer.pk %}">مشاهده</a></td>
+                                                <td style="color:#665191">
+                                                    {% if customer.ceoname %}
+                                                    {{ customer.ceoname }}
+                                                    {% else %}
+                                                    ---
+                                                    {% endif %}
+                                                </td>
+                                                <td style="color:#665191">
+                                                    {% if customer.ncode %}
+                                                    {{ customer.ncode }}
+                                                    {% else %}
+                                                    ---
+                                                    {% endif %}
+                                                </td>
+                                                <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td><a class="btn btn-xs" href="{% url 'staff:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a></td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>

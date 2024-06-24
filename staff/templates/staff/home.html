@@ -1,12 +1,30 @@
 {% extends "base.html" %}
 {% load jalali_tags %}
+{% load static %}
 {% block title %}
 خانه | مدیریت پورتال
 {% endblock title %}
 
 {% block content %}
+
+
 <section id="page-content" class="background-light">
-    <div class="container">
+    <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="widget widget-mycart p-cb">
+                            <div>
+                                <div class="mb-2"><img src="{% static 'images/7.jpg' %}" class="avatar avatar-lg"></div>
+                                <div class="cart-product-meta">
+                                    <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
+                                    <p> امور نمایشگاهی </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    <div class="container-fluid">
         <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
@@ -21,9 +39,9 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>نوع حساب</th>
+                                    <th>نام و نشان</th>
                                     <th>نام تجاری</th>
-                                    <th>کدملی/شناسه‌ملی</th>
+                                    <th>کدملی</th>
                                     <th>شماره موبایل</th>
                                     <th>تاریخ ایجاد</th>
                                     <th>وضعیت</th>
@@ -34,12 +52,8 @@
                             {% if forloop.counter < 6 %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>
-                                        {% if customer.state == "real" %}
-                                        <h4><span class="badge badge-light">حقیقی</span></h4>
-                                        {% else %}
-                                        <h4><span class="badge badge-info">حقوقی</span></h4>
-                                        {% endif %}
+                                    <td class="text-info">
+                                        {{ customer.firstname }} {{ customer.lastname }}
                                     </td>
                                     <td style="color:blueviolet">{{ customer.company }}</td>
                                     <td class="text-primary">{{ customer.code }}</td>

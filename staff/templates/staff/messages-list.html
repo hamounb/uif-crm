@@ -10,14 +10,6 @@
 <section id="page-content" class="background-light">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h2>پیغام ها</h2>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
             {% if messages %}
             <div class="col-lg-12">
                 {% for message in messages %}
@@ -28,10 +20,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -52,6 +44,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
+                        <h3 class="mb-3 text-success">ارسال پیغام جدید</h3>
                         <div class="row">
                             <div class="col-lg-8">
                                 <form method="post" action="{% url 'staff:message-add' %}">
@@ -78,7 +71,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <input type="submit" class="btn btn-success" value="ذخیره اطلاعات">
+                                    <input type="submit" class="btn btn-success" value="ارسال">
                                 </form>
                             </div>
                             <div class="col-lg-4 text-center">
@@ -91,6 +84,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
+                        <h3 class="mb-3">لیست پیغام‌ها</h3>
                         <div class="row">
                             <div class="form-group col-lg-3">
                                 <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
@@ -114,7 +108,7 @@
                                             {% for mes in mes %}
                                             <tr>
                                                 <td>{{ mes.pk }}</td>
-                                                <td data-toggle="tooltip" data-placement="top" title="{{ mes.user_created.firstname }} {{ mes.user_created.lastname }}">
+                                                <td data-toggle="tooltip" data-placement="top" title="{{ mes.user_created.first_name }} {{ mes.user_created.last_name }}">
                                                     <code>{{ mes.user_created.username }}</code>
                                                 </td>
                                                 <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ mes.customer.firstname }} {{ mes.customer.lastname }}">
