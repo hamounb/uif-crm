@@ -4,9 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib import messages
+from django.db import IntegrityError
 from .models import *
 from accounts.models import MobileModel
 from .forms import *
+from accounts.payamak import send_sms
 
 # Create your views here.
 
@@ -70,9 +72,15 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                     obj.user = user
                     obj.user_modified = user
                     obj.user_created = user
-                    obj.save()
-                    messages.success(request, f"مشتری حقوقی {obj.company}، اطلاعات شما ثبت شد.")
-                    return redirect('crm:customer-change', id=obj.id)
+                    try:
+                        obj.save()
+                    except IntegrityError:
+                        messages.error(request, f"نام تجاری مورد نظر قبلا توسط شما ثبت شده است!")
+                        return render(request, 'crm/customer-add.html', {'form':form})
+                    else:
+                        messages.success(request, f"مشتری حقوقی {obj.company}، اطلاعات شما ثبت شد.")
+                        send_sms(228007, f"{mobile}", [user.username, obj.company])
+                        return redirect('crm:customer-change', id=obj.id)
             else:
                 obj.code = user.username
                 obj.mobile = mobile.mobile
@@ -81,9 +89,15 @@ class CustomerAddView(LoginRequiredMixin, views.View):
                 obj.user = user
                 obj.user_modified = user
                 obj.user_created = user
-                obj.save()
-                messages.success(request, f"مشتری حقیقی {obj.company}، اطلاعات شما ثبت شد.")
-                return redirect('crm:customer-change', id=obj.id)
+                try:
+                    obj.save()
+                except IntegrityError:
+                    messages.error(request, f"نام تجاری مورد نظر قبلا توسط شما ثبت شده است!")
+                    return render(request, 'crm/customer-add.html', {'form':form})
+                else:
+                    messages.success(request, f"مشتری حقیقی {obj.company}، اطلاعات شما ثبت شد.")
+                    send_sms(228007, str(mobile.mobile), [str(user.username), obj.company])
+                    return redirect('crm:customer-change', id=obj.id)
         return render(request, 'crm/customer-add.html', {'form':form})
 
 

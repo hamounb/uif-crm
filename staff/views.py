@@ -62,6 +62,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
     
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
+        mobile = get_object_or_404(Mo)
         form = CustomerAddForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)

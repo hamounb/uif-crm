@@ -86,7 +86,9 @@ class DocumentsModel(BaseModel):
     file = models.FileField(verbose_name='مدرک', upload_to=documents_directory_path)
 
     def __str__(self):
-        return f"{self.customer.company} - {self.file.name}"
+        if self.customer is not None:
+            return f"{self.customer.company} - {self.file.name}"
+        return self.file.name
     
     class Meta:
         verbose_name = 'مدرک'
@@ -161,7 +163,9 @@ class MessageChangeModel(models.Model):
     modified_date = models.DateTimeField(verbose_name='تاریخ تغییرات')
 
     def __str__(self):
-        return f"{self.message.pk}.{self.message.customer.company} - ({self.message.customer.firstname} {self.message.customer.lastname})"
+        if self.message is not None:
+            return f"{self.message.pk}.{self.message.customer.company} - ({self.message.customer.firstname} {self.message.customer.lastname})"
+        return self.text
     
     class Meta:
         verbose_name = 'پیغام ویرایش شده'
@@ -181,8 +185,12 @@ class InvoiceModel(BaseModel):
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.customer.company} - {self.exhibition.title} - {self.price}"
+        if self.customer is not None:
+            return f"{self.customer.company} - {self.exhibition.title} - {self.price}"
+        return f"{self.area} - {self.total_price}"
     
     class Meta:
         verbose_name = 'فاکتور'
         verbose_name_plural = 'فاکتورها'
+
+

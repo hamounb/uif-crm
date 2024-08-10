@@ -1,11 +1,12 @@
 {% extends "base-c.html" %}
+{% load static %}
 {% load jalali_tags %}
 {% block title %}
 ثبت مشخصات مشارکت کننده
 {% endblock title %}
 
 {% block content %}
-<section id="page-content" class="background-light">
+<section id="page-content" data-bg-image="{% static 'images/1.jpg' %}" style="min-height:1000px">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">

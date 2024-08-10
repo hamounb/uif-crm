@@ -159,6 +159,7 @@ class SignInView(views.View):
 
     def get(self, request):
         if request.user.is_authenticated:
+            print(self.request.user)
             user = get_object_or_404(User, pk=request.user.id)
             if user.is_staff:
                 return redirect('staff:home')

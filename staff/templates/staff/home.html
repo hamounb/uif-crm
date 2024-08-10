@@ -10,19 +10,19 @@
 
 <section id="page-content" class="background-light">
     <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="widget widget-mycart p-cb">
-                            <div>
-                                <div class="mb-2"><img src="{% static 'images/7.jpg' %}" class="avatar avatar-lg"></div>
-                                <div class="cart-product-meta">
-                                    <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
-                                    <p> امور نمایشگاهی </p>
-                                </div>
-                            </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="widget widget-mycart p-cb">
+                    <div>
+                        <div class="mb-2"><img src="{% static 'images/7.jpg' %}" class="avatar avatar-lg"></div>
+                        <div class="cart-product-meta">
+                            <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
+                            <p> مدیریت سیستم </p>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
     </div>
     <div class="container-fluid">
         <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
@@ -76,7 +76,6 @@
                     <div><a class="btn" href="{% url 'staff:customer-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
-            {% if req %}
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست درخواست‌ها</h3>
@@ -135,9 +134,8 @@
                     <div><a class="btn" href="{% url 'staff:request-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
-            {% endif %}
         </div>
-        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="10">
+        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="0">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
                     <h3>لیست نمایشگاه‌ها</h3>
@@ -178,6 +176,13 @@
                     </div>
                     <hr>
                     <div><a class="btn" href="{% url 'staff:exhibition-list' %}">مشاهده همه</a></div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="widget widget-notification p-cb">
+                    <div style="height:445px">
+                        <div class="text-center"><h2>هنوز پنل فعالی وجود ندارد</h2></div>
+                    </div>
                 </div>
             </div>
         </div>
