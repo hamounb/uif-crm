@@ -30,10 +30,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -65,13 +65,11 @@
                                                 <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
                                                     <thead class="thead-light">
                                                         <tr>
-                                                            <th>فعال</th>
+                                                            <th>شماره فاکتور</th>
                                                             <th>نام تجاری</th>
-                                                            <th>نام ونشان</th>
                                                             <th>نمایشگاه</th>
                                                             <th>متراژ</th>
                                                             <th>تخفیف</th>
-                                                            <th>ارزش افزوده</th>
                                                             <th>مبلغ نهایی</th>
                                                             <th>تاریخ</th>
                                                             <th>توضیحات</th>
@@ -80,29 +78,36 @@
                                                     </thead>
                                                     <tbody>
                                                         {% for invoice in invoices %}
-                                                        {% if invoice.is_active %}
+                                                        {% for item in invoice.invoiceitemmodel_set.all %}
+                                                        {% if item.is_active %}
                                                         <tr>
-                                                            <td>{% if invoice.is_active %} <i class="fa fa-check-square"></i>{% else %}{% endif %}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ invoice.customer.code }}">
-                                                                <b>{{ invoice.customer.company }}</b>
+                                                            <td>{{ item.invoice.pk }}</td>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ item.customer.firstname }} {{ item.customer.lastname }}-{{ item.customer.code }}">
+                                                                <b>{{ item.customer.company }}</b>
                                                             </td>
-                                                            <td class="text-primary">{{ invoice.customer.firstname }} {{ invoice.customer.lastname }}</td>
-                                                            <td style="color:green"><b>{{ invoice.exhibition.title }}</b></td>
-                                                            <td>{{ invoice.area }}</td>
-                                                            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}0{% endif %}</td>
-                                                            <td>{{ invoice.value_added }}</td>
-                                                            <td>{{ invoice.total_price|intcomma  }}</td>
-                                                            <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td style="color:green"><b>{{ item.exhibition.title }}</b></td>
+                                                            <td>{{ item.area }}</td>
+                                                            <td>{% if item.discount %}{{ item.discount }}{% else %}0{% endif %}</td>
+                                                            <td>{{ item.total_price|intcomma:False }}</td>
+                                                            <td>{{ item.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>
-                                                                {% if invoice.description %}
-                                                                {{ invoice.description }}
+                                                                {% if item.description %}
+                                                                {{ item.description }}
                                                                 {% else %}
                                                                 -----
                                                                 {% endif %}
                                                             </td>
-                                                            <td><a href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a></td>
+                                                            <td>
+                                                                <a class="btn btn-xs" href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a>
+                                                                <a class="btn btn-xs btn-info" href="{% url 'staff:invoice-edit' iid=invoice.pk %}">ویرایش</a>
+                                                                <a class="btn btn-xs btn-success" href="{% url 'staff:payment-add' id=invoice.pk %}">رسیدها</a>
+                                                                {% if item.invoice.state != "paid" %}
+                                                                <a class="btn btn-xs btn-danger" href="{% url 'staff:payment-add' id=invoice.pk %}">پرداخت</a>
+                                                                {% endif %}
+                                                            </td>
                                                         </tr>
                                                         {% endif %}
+                                                        {% endfor %}
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
@@ -119,7 +124,6 @@
                                                             <th>نمایشگاه</th>
                                                             <th>متراژ</th>
                                                             <th>تخفیف</th>
-                                                            <th>ارزش افزوده</th>
                                                             <th>مبلغ نهایی</th>
                                                             <th>تاریخ</th>
                                                             <th>توضیحات</th>
@@ -128,31 +132,35 @@
                                                     </thead>
                                                     <tbody>
                                                         {% for invoice in invoices %}
-                                                        {% if not invoice.is_active %}
+                                                        {% for item in invoice.invoiceitemmodel_set.all %}
+                                                        {% if not item.is_active %}
                                                         <tr>
-                                                            <td>{% if not invoice.is_active %} <i class="icon-x"></i>{% else %} {% endif %}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ invoice.customer.code }}">
-                                                                <b>{{ invoice.customer.company }}</b>
+                                                            <td>{% if not item.is_active %} <i class="icon-x"></i>{% else %} {% endif %}</td>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ item.customer.code }}">
+                                                                <b>{{ item.customer.company }}</b>
                                                             </td>
-                                                            <td class="text-primary">{{ invoice.customer.firstname }} {{ invoice.customer.lastname }}</td>
-                                                            <td style="color:green" data-toggle="tooltip" data-placement="top" title="{{ invoice.exhibition.date|to_jalali:"%Y" }}">
-                                                                <b>{{ invoice.exhibition.title }}</b>
+                                                            <td class="text-primary">{{ item.customer.firstname }} {{ item.customer.lastname }}</td>
+                                                            <td style="color:green" data-toggle="tooltip" data-placement="top" title="{{ item.exhibition.date|to_jalali:"%Y" }}">
+                                                                <b>{{ item.exhibition.title }}</b>
                                                             </td>
-                                                            <td>{{ invoice.area }}</td>
-                                                            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}0{% endif %}</td>
-                                                            <td>{{ invoice.value_added }}</td>
-                                                            <td>{{ invoice.total_price }}</td>
-                                                            <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td>{{ item.area }}</td>
+                                                            <td>{% if item.discount %}{{ item.discount }}{% else %}0{% endif %}</td>
+                                                            <td>{{ item.total_price|intcomma:False }}</td>
+                                                            <td>{{ item.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>
-                                                                {% if invoice.description %}
-                                                                {{ invoice.description }}
+                                                                {% if item.description %}
+                                                                {{ item.description }}
                                                                 {% else %}
                                                                 -----
                                                                 {% endif %}
                                                             </td>
-                                                            <td><a href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a></td>
+                                                            <td>
+                                                                <a class="btn btn-xs" href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a>
+                                                                <a class="btn btn-xs btn-info" href="{% url 'staff:invoice-edit' iid=invoice.pk %}">ویرایش</a>
+                                                            </td>
                                                         </tr>
                                                         {% endif %}
+                                                        {% endfor %}
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>

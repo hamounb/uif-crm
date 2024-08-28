@@ -173,13 +173,35 @@ class MessageChangeModel(models.Model):
 
 
 class InvoiceModel(BaseModel):
+    STATE_PREPAYMENT = 'prepayment'
+    STATE_PAID = 'paid'
+    STATE_UNPAID = 'unpaid'
+    STATE_CHOICES = (
+        (STATE_PREPAYMENT, 'پیش پرداخت'),
+        (STATE_PAID, 'پرداخت شده'),
+        (STATE_UNPAID, 'پرداخت نشده')
+    )
+    state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_UNPAID)
+    customer = models.ForeignKey(CustomerModel, on_delete=models.PROTECT, verbose_name="مشارکت کننده")
+    amount = models.CharField(verbose_name="مبلغ", max_length=20)
+
+    def __str__(self):
+        return f"{self.customer.company} - شماره فاکتور: {self.pk}"
+    
+    class Meta:
+        verbose_name = 'فاکتور'
+        verbose_name_plural = 'فاکتورها'
+
+
+class InvoiceItemModel(BaseModel):
     is_active = models.BooleanField(verbose_name='فعال', default=False)
+    invoice = models.ForeignKey(InvoiceModel, on_delete=models.SET_NULL, verbose_name="فاکتور", null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='نمایشگاه')
     price = models.CharField(verbose_name='مبلغ', max_length=20)
     area = models.IntegerField(verbose_name='متراژ', default=0)
-    value_added = models.IntegerField(verbose_name='ارزش افزوده', default=0)
+    value_added = models.CharField(verbose_name='ارزش افزوده', max_length=10, default="0")
     discount = models.CharField(verbose_name='تخفیف', max_length=20, null=True, blank=True)
     total_price = models.CharField(verbose_name='مبلغ نهایی', max_length=20)
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
@@ -190,7 +212,44 @@ class InvoiceModel(BaseModel):
         return f"{self.area} - {self.total_price}"
     
     class Meta:
-        verbose_name = 'فاکتور'
-        verbose_name_plural = 'فاکتورها'
+        constraints = [
+            models.UniqueConstraint(fields=["exhibition", "customer"], name='excus')
+    ]
+        verbose_name = 'اقلام فاکتور'
+        verbose_name_plural = 'اقلام فاکتورها'
 
 
+class PaymentModel(BaseModel):
+    STATE_CHECK = 'check'
+    STATE_CASHE = 'cashe'
+    STATE_POS = 'pos'
+    STATE_CHOICES = (
+        (STATE_CHECK, 'چک بانکی'),
+        (STATE_CASHE, 'نقدی'),
+        (STATE_POS, 'پوز بانکی')
+    )
+    state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_POS)
+    invoice = models.ForeignKey(InvoiceModel, on_delete=models.PROTECT, verbose_name="فاکتور")
+    amount = models.IntegerField(verbose_name="مبلغ", default=1000)
+    cardnumber = models.CharField(verbose_name="شماره کارت/چک", max_length=32, null=True, blank=True)
+    issuerbank = models.CharField(verbose_name="بانک صادرکننده", max_length=150, null=True, blank=True)
+    name = models.CharField(verbose_name="مشخصات صاحب چک", max_length=150, null=True, blank=True)
+    rrn = models.CharField(verbose_name="شماره سند بانکی", max_length=150, null=True, blank=True)
+    tracenumber = models.CharField(verbose_name="شماره پیگیری", max_length=150, null=True, blank=True)
+    digitalreceipt = models.CharField(verbose_name="رسید دیجیتال", max_length=150, null=True, blank=True)
+    respcode = models.IntegerField(verbose_name="کد نتیجه تراکنش", default=0, null=True, blank=True)
+    respmsg = models.CharField(verbose_name="متن نتیجه تراکنش", max_length=150, null=True, blank=True)
+    payload = models.CharField(verbose_name="توضیحات", max_length=150, null=True, blank=True)
+    datepaid = models.CharField(verbose_name="تاریخ و زمان تراکنش", max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        if self.state == self.STATE_POS:
+            return f"{self.state} - شماره فاکتور: {self.invoice.pk} - مبلغ: {self.amount} - شماره پیگیری: {self.tracenumber}"
+        return f"{self.state} - شماره فاکتور: {self.invoice.pk} - مبلغ: {self.amount}"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["digitalreceipt"], name='specdr')
+    ]
+        verbose_name = 'پرداخت'
+        verbose_name_plural = 'پرداخت‌ها'

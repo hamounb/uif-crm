@@ -30,10 +30,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -75,7 +75,7 @@
                                     <div class="col-sm-12">
                                         <div class="row mb-1" style="border:2px solid black; line-height:4em">
                                             <div class="col-sm-6">
-                                                <b>نام شخص حقیقی/حقوقی: </b>{{ invoice.customer.firstname }} {{ invoice.customer.lastname }} ({{ invoice.customer.company }})
+                                                <b>طرف حساب: </b>{{ invoice.customer.firstname }} {{ invoice.customer.lastname }} ({{ invoice.customer.company }})
                                             </div>
                                             <div class="col-sm-6 text-right">
                                                 <b>کدملی/شناسه‌ملی: </b>
@@ -102,53 +102,33 @@
                                                             <th style="border:2px solid black">شرح خدمات</th>
                                                             <th style="border:2px solid black">متراژ</th>
                                                             <th style="border:2px solid black">قیمت واحد (ریال)</th>
+                                                            <th style="border:2px solid black">ارزش افزوده (درصد)</th>
+                                                            <th style="border:2px solid black">تخفیف (درصد)</th>
                                                             <th style="border:2px solid black">جمع کل (ریال)</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody style="border-left:2px solid black; border-right:2px solid black; border-bottom:2px solid black">
+                                                        {% for item in invoice.invoiceitemmodel_set.all %}
                                                         <tr style="border-bottom:1px solid gray">
                                                             <td style="border-left:2px solid black">1</td>
-                                                            <td style="border-left:2px solid black">{{ invoice.exhibition.title }}</td>
-                                                            <td style="border-left:2px solid black">{{ invoice.area }}</td>
-                                                            <td style="border-left:2px solid black">{{ invoice.price }}</td>
-                                                            <td>{% widthratio invoice.area 1 invoice.price %}</td>
+                                                            <td style="border-left:2px solid black">{{ item.exhibition.title }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.area }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.price }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.discount }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.value_added }}</td>
+                                                            <td>{{ item.total_price }}</td>
                                                         </tr>
-                                                        <tr style="border-bottom:1px solid gray">
-                                                            <td style="border-left:2px solid black">2</td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr style="border-bottom:1px solid gray">
-                                                            <td style="border-left:2px solid black">3</td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr style="border-bottom:1px solid gray">
-                                                            <td style="border-left:2px solid black">4</td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td></td>
-                                                        </tr>
-                                                        <tr style="border-bottom:1px solid gray">
-                                                            <td style="border-left:2px solid black">5</td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td style="border-left:2px solid black"></td>
-                                                            <td></td>
-                                                        </tr>
+                                                        {% endfor %}
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
                                                             <td style="border-right:2px solid black; border-bottom:2px solid black"></td>
                                                             <td style="border-bottom:2px solid black"></td>
                                                             <td style="border-bottom:2px solid black"></td>
-                                                            <td class="text-center" style="border-bottom:2px solid black;border-left:2px solid black;line-height: 2.5em;">ارزش افزوده: <br>تخفیف: <br>جمع کل:</td>
-                                                            <td style="border-bottom:2px solid black; border-left:2px solid black;line-height: 2.5em;">{{ invoice.value_added }} درصد<br>{{ invoice.discount }} درصد<br>{{ invoice.total_price }} ریال</td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td class="text-center" style="border-bottom:2px solid black;border-left:2px solid black;line-height: 2.5em;">جمع کل:</td>
+                                                            <td style="border-bottom:2px solid black; border-left:2px solid black;line-height: 2.5em;">{{ invoice.amount }} ریال</td>
                                                         </tr>
                                                     </tfood>
                                                 </table>
@@ -156,7 +136,13 @@
                                         </div>
                                         <div class="row mt-1" style="line-height:8em; border:2px solid black">
                                             <div class="col-sm-6">
-
+                                                {% if invoice.state == "paid" %}
+                                                <i class="fa fa-check-circle"> پرداخت شده</i>
+                                                {% elif invoice.state == "unpaid" %}
+                                                <i class="fa fa-times-circle"> پرداخت نشده</i>
+                                                {% else %}
+                                                <i class="fa fa-plus-circle"> پیش پرداخت</i>
+                                                {% endif %}
                                             </div>
                                             <div class="col-sm-6">
                                                 امضاء/مهر فروشنده:

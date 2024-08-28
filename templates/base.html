@@ -82,10 +82,11 @@
                                             <li class="dropdown-submenu"><a href="#">فاکتورها</a>
                                                 <ul class="dropdown-menu">
                                                     <li><a href="{% url 'staff:invoice-list' %}">لیست همه</a></li>
+                                                    <li><a href="{% url 'staff:invoice-unpaid' %}">پرداخت نشده‌ها</a></li>
                                                     <li><a href="{% url 'staff:invoice-add' %}">جدید</a></li>
                                                 </ul>
                                             </li>
-                                            <li><a href="#">پرداخت‌ها</a></li>
+                                            <li><a href="{% url 'staff:payment-list' %}">پرداخت‌ها</a></li>
                                         </ul>
                                     </li>
                                     <li class="dropdown"><a href="#">نمایشگاه‌ها</a>

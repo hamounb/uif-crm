@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.db.models import Sum
+from accounts.models import MobileModel
 
 # Create your views here.
 
@@ -62,7 +63,6 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
     
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        mobile = get_object_or_404(Mo)
         form = CustomerAddForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -326,11 +326,11 @@ class InvoiceAddView(PermissionRequiredMixin, views.View):
     permission_required = ['crm.add_invoicemodel']
 
     def get(self, request):
-        form = InvoiceForm()
+        form = InvoiceItemForm()
         return render(request, 'staff/invoice-add.html', {'form':form})
     
     def post(self, request):
-        form = InvoiceForm(request.POST)
+        form = InvoiceItemForm(request.POST)
         user = get_object_or_404(User, pk=request.user.id)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -338,9 +338,16 @@ class InvoiceAddView(PermissionRequiredMixin, views.View):
             obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
             obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
             total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
-            amount = int(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
-            obj.total_price = float(amount - int(amount * int(form.cleaned_data.get('discount')) / 100))
+            amount = float(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
+            total_price = float(amount - float(amount * int(form.cleaned_data.get('discount')) / 100))
+            obj.total_price = int(total_price)
             obj.user_created = user
+            invoice = InvoiceModel(
+                customer = CustomerModel.objects.get(company=form.cleaned_data.get('customer')),
+                amount = int(total_price)
+            )
+            invoice.save()
+            obj.invoice = invoice
             obj.save()
             messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ثبت شد.')
             return render(request, 'staff/invoice-add.html', {'form':form})
@@ -356,6 +363,15 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
         return render(request, 'staff/invoice-list.html', {'invoices':invoices})
     
 
+class InvoiceUnpaidView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.view_invoicemodel']
+
+    def get(self, request):
+        invoices = InvoiceModel.objects.filter(Q(state=InvoiceModel.STATE_PREPAYMENT) | Q(state=InvoiceModel.STATE_UNPAID)).order_by('-created_date')
+        return render(request, 'staff/invoice-list.html', {'invoices':invoices})
+    
+
 class InvoiceDetailsView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['crm.change_invoicemodel']
@@ -363,6 +379,48 @@ class InvoiceDetailsView(PermissionRequiredMixin, views.View):
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         return render(request, 'staff/invoice-details.html', {'invoice':invoice})
+    
+
+class InvoiceEditView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.change_invoiceitemmodel']
+
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        item = get_object_or_404(InvoiceItemModel, invoice=invoice)
+        form = InvoiceItemForm(instance=item)
+        context = {
+            "form":form,
+        }
+        return render(request, 'staff/invoice-add.html', context)
+    
+    def post(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        item = get_object_or_404(InvoiceItemModel, invoice=invoice)
+        form = InvoiceItemForm(request.POST, instance=item)
+        user = get_object_or_404(User, pk=request.user.id)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = item.user
+            obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
+            obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
+            total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
+            amount = float(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
+            total_price = float(amount - float(amount * int(form.cleaned_data.get('discount')) / 100))
+            obj.total_price = int(total_price)
+            obj.user_modified = user
+            try:
+                invoice = InvoiceModel.objects.get(customer=form.cleaned_data.get('customer'))
+            except CustomerModel.DoesNotExist:
+                return render(request, 'staff/invoice-add.html', {'form':form})
+            else:
+                invoice.amount = int(total_price)
+                invoice.save()
+                obj.invoice = invoice
+                obj.save()
+                messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ویرایش شد.')
+                return render(request, 'staff/invoice-add.html', {'form':form})
+        return render(request, 'staff/invoice-add.html', {'form':form})
     
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
@@ -380,7 +438,7 @@ class ExhibitionAddView(PermissionRequiredMixin, views.View):
             obj = form.save(commit=False)
             obj.user_created = user
             obj.user_modified = user
-            obj.price = float(form.cleaned_data.get('price'))
+            obj.price = int(form.cleaned_data.get('price'))
             obj.save()
             messages.success(request, f"عنوان جدید {obj.title} با موفقیت ثبت شد.")
             return redirect('staff:exhibition-add')
@@ -401,7 +459,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
     permission_required = ['crm.change_exhibitionmodel']
 
     def get(self, request, eid):
-        cus = InvoiceModel.objects.filter(Q(is_active=True) & Q(exhibition=eid))
+        cus = InvoiceItemModel.objects.filter(Q(exhibition=eid) & Q(is_active=True))
         total = 0
         area = 0
         for i in cus:
@@ -415,6 +473,18 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             'area':area,
         }
         return render(request, 'staff/exhibition-details.html', context)
+    
+
+class ExhibitionStatusView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.view_exhibitionmodel']
+
+    def get(self, request, id):
+        items = InvoiceItemModel.objects.filter(Q(exhibition__pk=id) & Q(is_active=True))
+        context = {
+            "items":items,
+        }
+        return render(request, "staff/exhibition-status.html", context)
 
 
 class MessagesListView(PermissionRequiredMixin, views.View):
@@ -481,3 +551,211 @@ class MessageChangeView(PermissionRequiredMixin, views.View):
             mes.save()
             return redirect('staff:message-list')
         return render(request, 'staff/message-change.html', context)
+    
+
+class PaymentListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.view_paymentmodel']
+
+    def get(self, request):
+        payments = PaymentModel.objects.all().order_by("-created_date")
+        context = {
+            "payments":payments,
+        }
+        return render(request, "staff/payment-list.html", context)
+    
+
+class PaymentAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.add_paymentmodel']
+
+    def get(self, request, id):
+        invoice = get_object_or_404(InvoiceModel, pk=id)
+        form = PaymentAddForm()
+        context = {
+            "invoice":invoice,
+            "form":form,
+        }
+        return render(request, "staff/payment-add.html", context)
+    
+    def post(self, request, id):
+        invoice = get_object_or_404(InvoiceModel, pk=id)
+        user = get_object_or_404(User, pk=request.user.id)
+        form = PaymentAddForm(request.POST)
+        context = {
+            "invoice":invoice,
+            "form":form,
+        }
+        if form.is_valid():
+            state = form.cleaned_data.get("state")
+            amount = form.cleaned_data.get("amount")
+            check = form.cleaned_data.get("check")
+            issuerbank = form.cleaned_data.get("issuerbank")
+            name = form.cleaned_data.get("name")
+            tracenumber = form.cleaned_data.get("tracenumber")
+            datepaid = form.cleaned_data.get("datepaid")
+            description = form.cleaned_data.get("description")
+            payment = PaymentModel()
+            if state == PaymentModel.STATE_CASHE:
+                payment.state = PaymentModel.STATE_CASHE
+                payment.amount = int(amount)
+                payment.datepaid = datepaid
+                payment.payload = description
+                payment.user_created = user
+                payment.invoice = invoice
+                payment.save()
+                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
+            elif state == PaymentModel.STATE_CHECK:
+                if check and issuerbank and name:
+                    payment.state = PaymentModel.STATE_CHECK
+                    payment.amount = int(amount)
+                    payment.cardnumber = check
+                    payment.issuerbank = issuerbank
+                    payment.name = name
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_created = user
+                    payment.invoice = invoice
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
+            elif state == PaymentModel.STATE_POS:
+                if tracenumber:
+                    payment.state = PaymentModel.STATE_POS
+                    payment.amount = int(amount)
+                    payment.tracenumber = tracenumber
+                    payment.issuerbank = issuerbank
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_created = user
+                    payment.invoice = invoice
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
+            else:
+                return render(request, "staff/payment-add.html", context)
+            payment_list = PaymentModel.objects.filter(invoice=invoice)
+            total_amount = 0
+            if payment_list:
+                for i in payment_list:
+                    total_amount += i.amount
+                if total_amount >= int(invoice.amount):
+                    invoice.state = InvoiceModel.STATE_PAID
+                    invoice.save()
+                else:
+                    invoice.state = InvoiceModel.STATE_PREPAYMENT
+                    invoice.save()
+            return render(request, "staff/payment-add.html", context)
+        return render(request, "staff/payment-add.html", context)
+    
+
+class PaymentEditView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['crm.change_paymentmodel']
+
+    def get(self, request, id):
+        payment = get_object_or_404(PaymentModel, pk=id)
+        initial = {
+            "state":payment.state,
+            "check":payment.cardnumber,
+            "name":payment.name,
+            "issuerbank":payment.issuerbank,
+            "amount":payment.amount,
+            "tracenumber":payment.tracenumber,
+            "datepaid":payment.datepaid,
+            "description":payment.payload,
+        }
+        form = PaymentAddForm(initial=initial)
+        context = {
+            "payment":payment,
+            "form":form,
+        }
+        return render(request, "staff/payment-edit.html", context)
+    
+    def post(self, request, id):
+        payment = get_object_or_404(PaymentModel, pk=id)
+        user = get_object_or_404(User, pk=request.user.id)
+        initial = {
+            "state":payment.state,
+            "check":payment.cardnumber,
+            "name":payment.name,
+            "issuerbank":payment.issuerbank,
+            "amount":payment.amount,
+            "tracenumber":payment.tracenumber,
+            "datepaid":payment.datepaid,
+            "description":payment.payload,
+        }
+        form = PaymentAddForm(request.POST, initial=initial)
+        context = {
+            "payment":payment,
+            "form":form,
+        }
+        if form.is_valid():
+            state = form.cleaned_data.get("state")
+            amount = form.cleaned_data.get("amount")
+            check = form.cleaned_data.get("check")
+            issuerbank = form.cleaned_data.get("issuerbank")
+            name = form.cleaned_data.get("name")
+            tracenumber = form.cleaned_data.get("tracenumber")
+            datepaid = form.cleaned_data.get("datepaid")
+            description = form.cleaned_data.get("description")
+            if state == PaymentModel.STATE_CASHE:
+                payment.state = PaymentModel.STATE_CASHE
+                payment.amount = int(amount)
+                payment.cardnumber = ""
+                payment.issuerbank = ""
+                payment.name = ""
+                payment.datepaid = datepaid
+                payment.payload = description
+                payment.user_modified = user
+                payment.save()
+                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
+            elif state == PaymentModel.STATE_CHECK:
+                if check and issuerbank and name:
+                    payment.state = PaymentModel.STATE_CHECK
+                    payment.amount = int(amount)
+                    payment.cardnumber = check
+                    payment.issuerbank = issuerbank
+                    payment.name = name
+                    payment.tracenumber = ""
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_modified = user
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
+            elif state == PaymentModel.STATE_POS:
+                if tracenumber:
+                    payment.state = PaymentModel.STATE_POS
+                    payment.amount = int(amount)
+                    payment.tracenumber = tracenumber
+                    payment.cardnumber = ""
+                    payment.issuerbank = issuerbank
+                    payment.name = ""
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_modified = user
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
+            else:
+                return render(request, "staff/payment-edit.html", context)
+            payment_list = PaymentModel.objects.filter(invoice=payment.invoice)
+            invoice = get_object_or_404(InvoiceModel, pk=payment.invoice.pk)
+            total_amount = 0
+            if payment_list:
+                for i in payment_list:
+                    total_amount += i.amount
+                if total_amount >= int(invoice.amount):
+                    invoice.state = InvoiceModel.STATE_PAID
+                    invoice.save()
+                else:
+                    invoice.state = InvoiceModel.STATE_PREPAYMENT
+                    invoice.save()
+            return render(request, "staff/payment-edit.html", context)
+        return render(request, "staff/payment-edit.html", context)
+        

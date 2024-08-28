@@ -30,10 +30,10 @@
                             {{ message}}
                         </div>
                     {% endif %}
-                    {% if message.extra_tags == 'success' %}
+                    {% if message.tags == 'success' %}
                         <div role="alert" class="alert alert-success alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
-                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
                             {{ message}}
                         </div>
                     {% endif %}
@@ -90,7 +90,10 @@
                                                             <td style="color:green"><b>{{ exh.price|intcomma  }}</b></td>
                                                             <td>{{ exh.value_added }}</td>
                                                             <td>{{ exh.date|to_jalali:'%Y/%m/%d' }}</td>
-                                                            <td><a href="{% url 'staff:exhibition-details' eid=exh.pk %}">جزئیات</a></td>
+                                                            <td>
+                                                                <a class="btn btn-sm" href="{% url 'staff:exhibition-details' eid=exh.pk %}">جزئیات</a>
+                                                                <a class="btn btn-info btn-sm" href="{% url 'staff:exhibition-status' id=exh.pk %}">صورت وضعیت</a>
+                                                            </td>
                                                         </tr>
                                                         {% endif %}
                                                         {% endfor %}

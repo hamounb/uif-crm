@@ -112,13 +112,13 @@ class RequestAcceptForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control', 'rows':2}), label="توضیحات", required=False)
 
 
-class InvoiceForm(forms.ModelForm):
+class InvoiceItemForm(forms.ModelForm):
     area = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="متراژ", validators=[is_positive])
     discount = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), label="تخفیف", required=True, validators=[is_discount], empty_value="0")
 
 
     class Meta:
-        model = InvoiceModel
+        model = InvoiceItemModel
         fields = (
             'is_active',
             'customer',
@@ -161,3 +161,22 @@ class ExhibitionForm(forms.ModelForm):
         self.fields['date'] = JalaliDateField(label="تاریخ برگزاری", # date format is  "yyyy-mm-dd"
             widget=AdminJalaliDateWidget() # optional, to use default datepicker
         )
+
+
+class PaymentAddForm(forms.Form):
+    STATE_CHECK = 'check'
+    STATE_CASHE = 'cashe'
+    STATE_POS = 'pos'
+    STATE_CHOICES = (
+        (STATE_POS, 'پوز بانکی'),
+        (STATE_CHECK, 'چک بانکی'),
+        (STATE_CASHE, 'نقدی'),
+    )
+    state = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=STATE_CHOICES), label="نوع پرداخت")
+    amount = forms.IntegerField(widget=forms.TextInput(attrs={"class":"form-control"}), min_value=0, label="مبلغ")
+    check = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="سریال چک", required=False)
+    issuerbank = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="بانک صادرکننده", required=False)
+    name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="نام صاحب چک", required=False)
+    tracenumber = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="شماره پیگیری", required=False)
+    datepaid = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="تاریخ پرداخت")
+    description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":6}), label="توضیحات", required=False)

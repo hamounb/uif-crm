@@ -94,7 +94,35 @@ class MessageChangeAdmin(admin.ModelAdmin):
 @admin.register(InvoiceModel)
 class InvoiceAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer", "exhibition")
+    search_fields = ("customer", "amount")
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.user_modified = request.user
+        else:
+            obj.user_created = request.user
+            obj.user_modified = request.user
+        return super().save_model(request, obj, form, change)
+
+    
+@admin.register(InvoiceItemModel)
+class InvoiceItemAdmin(admin.ModelAdmin):
+    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+    search_fields = ("customer", "exhibition", "invoice")
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.user_modified = request.user
+        else:
+            obj.user_created = request.user
+            obj.user_modified = request.user
+        return super().save_model(request, obj, form, change)
+
+    
+@admin.register(PaymentModel)
+class PaymentAdmin(admin.ModelAdmin):
+    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+    search_fields = ("invoice", "tracenumber", "cardnumber")
     
     def save_model(self, request, obj, form, change):
         if change:

@@ -1,6 +1,7 @@
 {% extends "base-c.html" %}
 {% load jalali_tags %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
 فاکتورها
@@ -30,24 +31,31 @@
                                 <tr>
                                     <th>عنوان نمایشگاه</th>
                                     <th>متراژ(متر مربع)</th>
-                                    <th>قیمت هرمترمربع</th>
-                                    <th>ارزش افزوده</th>
+                                    <th>قیمت هرمترمربع (ریال)</th>
+                                    <th>ارزش افزوده (درصد)</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for item in invoice.invoiceitemmodel_set.all %}
                                 <tr>
-                                    <td>{{ invoice.exhibition.title }}</td>
-                                    <td>{{ invoice.area }}</td>
-                                    <td>{{ invoice.price }}</td>
-                                    <td>{{ invoice.value_added }} درصد</td>
+                                    <td>{{ item.exhibition.title }}</td>
+                                    <td>{{ item.area }}</td>
+                                    <td>{{ item.price|intcomma:False }}</td>
+                                    <td>{{ item.value_added }} درصد</td>
                                 </tr>
+                                {% endfor %}
                                 <tr>
                                     <td colspan="3"></td>
-                                    <td><b>کل:</b> {{ invoice.total_price }}</td>
+                                    <td><b>کل:</b> {{ invoice.amount|intcomma:False }}</td>
                                 </tr>
                             </tbody>
                         </table>
-                        <p><b>توضیحات:</b> {{ invoice.description }}</p>
+                        {% if invoice.state == "paid" %}
+                        <p class="text-success"><b>توضیحات:</b> <i class="fa fa-check-circle"></i> {{ invoice.get_state_display }}</p>
+                        {% else %}
+                        <p class="text-danger"><b>توضیحات:</b> <i class="fa fa-minus-circle"></i> {{ invoice.get_state_display }}</p>
+                        <a class="btn btn-sm btn-danger text-right">پرداخت</a>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

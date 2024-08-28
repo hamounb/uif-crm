@@ -26,7 +26,7 @@ class IndexView(LoginRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         customer = CustomerModel.objects.filter(user=user)
         mes = MessagesModel.objects.filter(Q(customer__user=user) & Q(is_active=True)).order_by('-created_date')
-        invoices = InvoiceModel.objects.filter(Q(user=user) & Q(is_active=True)).order_by('-created_date')
+        invoices = InvoiceModel.objects.filter(Q(customer__user=user)).order_by('-created_date')
         context = {
             'mes':mes,
             'customer':customer,
@@ -270,5 +270,7 @@ class InvoiceListView(LoginRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        invoices = InvoiceModel.objects.filter(Q(user=user) & Q(is_active=True)).order_by('-created_date')
+        invoices = InvoiceModel.objects.filter(Q(customer__user=user)).order_by('-created_date')
         return render(request, 'crm/invoice-list.html', {'invoices':invoices})
+    
+

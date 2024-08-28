@@ -1,7 +1,7 @@
 from django import forms
 from .models import *
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
